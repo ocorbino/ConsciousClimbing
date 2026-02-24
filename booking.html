@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Book a Climb | Conscious Climbing</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Outfit:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="index.html">
+        <img src="assets/FB_IMG_1771902424500.jpg" alt="Conscious Climbing logo" />
+        <span>Conscious Climbing</span>
+      </a>
+      <nav>
+        <a href="index.html">Home</a>
+        <a href="about.html">About</a>
+        <a href="services.html">Services</a>
+        <a class="active" href="booking.html">Book</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="panel">
+        <p class="eyebrow">Booking Request</p>
+        <h1>Tell us about your climbing day</h1>
+
+        <form class="booking-form" action="/api/bookings" method="post">
+          <label>First name <input type="text" name="first_name" required /></label>
+          <label>Last name <input type="text" name="last_name" required /></label>
+          <label>Email <input type="email" name="email" required /></label>
+          <label>Phone <input type="tel" name="phone" required /></label>
+          <label>
+            Date
+            <input type="date" name="date" required />
+          </label>
+          <label>
+            Time
+            <select name="time" required>
+              <option value="">Select a time</option>
+              <option>8:00 AM</option>
+              <option>10:00 AM</option>
+              <option>12:00 PM</option>
+              <option>2:00 PM</option>
+              <option>4:00 PM</option>
+            </select>
+          </label>
+          <label>
+            Service Type
+            <select name="service_type" required>
+              <option value="">Choose service</option>
+              <option>Guided Climb ($200 / person)</option>
+            </select>
+          </label>
+          <label>
+            Equipment
+            <select name="equipment" required>
+              <option value="">Select equipment option</option>
+              <option>No equipment needed</option>
+              <option>Add equipment rental ($50 / person)</option>
+            </select>
+          </label>
+          <label>
+            Group size
+            <input type="number" name="group_size" min="1" max="12" required />
+          </label>
+          <label class="full-width">
+            Special requests
+            <textarea name="special_requests" rows="5" placeholder="Tell us your experience level, goals, and any special requests."></textarea>
+          </label>
+          <p class="small-note full-width">Form is wired to a placeholder backend route: <code>/api/bookings</code>.</p>
+          <button class="btn full-width" type="submit">Submit Booking Request</button>
+        </form>
+      </section>
+    </main>
+
+    <footer class="site-footer">Conscious Climbing • McCall, ID</footer>
+  </body>
+</html>

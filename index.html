@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Conscious Climbing | Guided Climbing in McCall, ID</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Outfit:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body class="landing-page">
+    <header class="site-header">
+      <a class="brand" href="index.html">
+        <img src="assets/FB_IMG_1771902424500.jpg" alt="Conscious Climbing logo" />
+        <span>Conscious Climbing</span>
+      </a>
+      <nav>
+        <a class="active" href="index.html">Home</a>
+        <a href="about.html">About</a>
+        <a href="services.html">Services</a>
+        <a href="booking.html">Book</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div>
+          <p class="eyebrow">McCall, Idaho</p>
+          <h1>Climbing days that are safe, memorable, and confidence-building.</h1>
+          <p>
+            Conscious Climbing offers guided outdoor climbing experiences near Ponderosa State Park for beginners,
+            families, and experienced climbers wanting a focused day outside.
+          </p>
+          <div class="actions">
+            <a class="btn" href="booking.html">Book Your Day</a>
+            <a class="btn btn-secondary" href="services.html">View Services</a>
+          </div>
+        </div>
+        <section class="carousel" aria-label="Conscious Climbing photo gallery">
+          <div class="carousel-track">
+            <img class="carousel-slide is-active" src="assets/IMG_0282.PNG" alt="Conscious Climbing gallery photo 1" />
+            <img class="carousel-slide" src="assets/IMG_0283.PNG" alt="Conscious Climbing gallery photo 2" />
+            <img class="carousel-slide" src="assets/IMG_0285.PNG" alt="Conscious Climbing gallery photo 3" />
+            <img class="carousel-slide" src="assets/IMG_0286.PNG" alt="Conscious Climbing gallery photo 4" />
+          </div>
+          <button class="carousel-btn prev" type="button" aria-label="Previous photo">‹</button>
+          <button class="carousel-btn next" type="button" aria-label="Next photo">›</button>
+        </section>
+      </section>
+
+      <section class="panel weather-panel">
+        <h2>Current Weather in McCall</h2>
+        <p id="weather-status">Loading current conditions...</p>
+      </section>
+
+      <section class="panel">
+        <h2>About Ponderosa State Park</h2>
+        <p>
+          Ponderosa State Park sits on a peninsula reaching into Payette Lake and offers forest trails, lake views,
+          wildlife habitat, and easy access to surrounding granite terrain. It is a great base area for outdoor days
+          that combine hiking, climbing, and scenic overlooks.
+        </p>
+        <p>
+          We can help guests plan a full day that includes a guided climb plus recommendations for nearby trailheads,
+          viewpoints, and post-climb recovery spots in McCall.
+        </p>
+        <div class="map-wrap">
+          <iframe
+            title="Map of Ponderosa State Park"
+            src="https://www.google.com/maps?q=Ponderosa+State+Park+McCall+Idaho&output=embed"
+            loading="lazy"
+            referrerpolicy="no-referrer-when-downgrade"
+            allowfullscreen
+          ></iframe>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">Conscious Climbing • McCall, ID</footer>
+    <script src="script.js"></script>
+  </body>
+</html>
