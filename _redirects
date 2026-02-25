@@ -1,0 +1,3 @@
+/Admin /admin 301
+/Admin/ /admin/ 301
+/Admin/* /admin/:splat 301
