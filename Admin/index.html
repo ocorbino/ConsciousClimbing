@@ -3469,7 +3469,7 @@
         // Check authentication on page load
         document.addEventListener('DOMContentLoaded', async () => {
             if (!authToken) {
-                window.location.href = '/admin/login.html';
+                window.location.href = '/Admin/login.html';
                 return;
             }
 
@@ -3483,7 +3483,7 @@
                 if (!data.valid) {
                     localStorage.removeItem('admin_token');
                     localStorage.removeItem('admin_user');
-                    window.location.href = '/admin/login.html';
+                    window.location.href = '/Admin/login.html';
                     return;
                 }
 
@@ -3501,7 +3501,7 @@
 
             } catch (error) {
                 console.error('Auth check failed:', error);
-                window.location.href = '/admin/login.html';
+                window.location.href = '/Admin/login.html';
                 return;
             }
 
@@ -3581,7 +3581,7 @@
         function logout() {
             localStorage.removeItem('admin_token');
             localStorage.removeItem('admin_user');
-            window.location.href = '/admin/login.html';
+            window.location.href = '/Admin/login.html';
         }
 
         // Permission-based UI visibility
