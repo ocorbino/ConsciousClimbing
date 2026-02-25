@@ -189,6 +189,38 @@ function parseTimeTo24(timeValue) {
   return `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
 }
 
+function normalizeDateInput(value) {
+  const raw = String(value || '').trim();
+  if (!raw) return null;
+
+  // Already YYYY-MM-DD
+  if (/^\d{4}-\d{2}-\d{2}$/.test(raw)) return raw;
+
+  // MM/DD/YYYY
+  const us = raw.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if (us) {
+    const mm = String(Number(us[1])).padStart(2, '0');
+    const dd = String(Number(us[2])).padStart(2, '0');
+    const yyyy = us[3];
+    return `${yyyy}-${mm}-${dd}`;
+  }
+
+  const parsed = new Date(raw);
+  if (Number.isNaN(parsed.getTime())) return null;
+  const yyyy = parsed.getFullYear();
+  const mm = String(parsed.getMonth() + 1).padStart(2, '0');
+  const dd = String(parsed.getDate()).padStart(2, '0');
+  return `${yyyy}-${mm}-${dd}`;
+}
+
+function dateToMs(value) {
+  const normalized = normalizeDateInput(value);
+  if (!normalized) return null;
+  const date = new Date(`${normalized}T00:00:00`);
+  if (Number.isNaN(date.getTime())) return null;
+  return date.getTime();
+}
+
 function upsertCustomerFromLead(store, lead) {
   const leadEmail = String(lead.email || '').trim().toLowerCase();
   const leadPhoneDigits = String(lead.phone || '').replace(/\D/g, '');
@@ -225,7 +257,8 @@ function upsertCustomerFromLead(store, lead) {
 }
 
 function createScheduleJobFromBooking(store, quote, customer, input) {
-  if (!input.date) return null;
+  const scheduledDate = normalizeDateInput(input.date);
+  if (!scheduledDate) return null;
 
   const time24 = parseTimeTo24(input.time) || '09:00';
   const serviceLabel = String(input.service_type || '').trim() || 'Booking';
@@ -241,7 +274,7 @@ function createScheduleJobFromBooking(store, quote, customer, input) {
     contact_name: quote.name,
     contact_phone: quote.phone || null,
     title,
-    scheduled_date: String(input.date),
+    scheduled_date: scheduledDate,
     scheduled_time: time24,
     time_window_end: null,
     duration_minutes: 120,
@@ -266,7 +299,7 @@ function buildQuoteFromInput(store, input) {
 
   const phone = String(input.phone || '').trim();
   const email = String(input.email || '').trim();
-  const preferredDate = String(input.date || input.preferred_date || '').trim();
+  const preferredDate = normalizeDateInput(String(input.date || input.preferred_date || '').trim());
   const preferredTimeRaw = String(input.time || input.preferred_time || '').trim();
   const preferredTime = parseTimeTo24(preferredTimeRaw) || preferredTimeRaw || null;
   const preferredDatetime = [preferredDate, preferredTimeRaw].filter(Boolean).join(' ').trim() || null;
@@ -1084,8 +1117,22 @@ async function handleApi(req, res, pathname, searchParams) {
       const limit = Number(searchParams.get('limit')) || 200;
       let jobs = [...(store.scheduleJobs || [])];
 
-      if (start) jobs = jobs.filter((j) => !j.scheduled_date || j.scheduled_date >= start);
-      if (end) jobs = jobs.filter((j) => !j.scheduled_date || j.scheduled_date <= end);
+      const startMs = dateToMs(start);
+      const endMs = dateToMs(end);
+
+      if (startMs != null) {
+        jobs = jobs.filter((j) => {
+          const jobMs = dateToMs(j.scheduled_date);
+          return jobMs == null || jobMs >= startMs;
+        });
+      }
+
+      if (endMs != null) {
+        jobs = jobs.filter((j) => {
+          const jobMs = dateToMs(j.scheduled_date);
+          return jobMs == null || jobMs <= endMs;
+        });
+      }
       jobs.sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
       jobs = jobs.slice(0, limit);
       return sendJson(res, 200, { success: true, jobs });
