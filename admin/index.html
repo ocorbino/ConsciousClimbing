@@ -1417,9 +1417,23 @@
     </div>
 
     <style>
+        /* Keep top nav/dropdown above calendar cards and popovers */
+        .navbar {
+            position: relative;
+            z-index: 3000;
+            overflow: visible;
+        }
+
+        .nav-container {
+            position: relative;
+            z-index: 3001;
+            overflow: visible;
+        }
+
         /* Dropdown styles */
         .nav-dropdown {
             position: relative;
+            z-index: 3002;
         }
 
         .dropdown-toggle {
@@ -1446,7 +1460,7 @@
             min-width: 200px;
             padding: 8px 0;
             display: none;
-            z-index: 1001;
+            z-index: 3100;
         }
 
         .dropdown-menu.show {
