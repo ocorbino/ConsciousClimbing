@@ -1296,13 +1296,19 @@ function serveFile(res, filePath) {
 function serveStatic(req, res, pathname) {
   if (pathname.startsWith('/data')) return sendText(res, 403, 'Forbidden');
 
+  if (pathname === '/Admin' || pathname.startsWith('/Admin/')) {
+    const target = pathname.replace('/Admin', '/admin');
+    res.writeHead(301, { Location: target || '/admin' });
+    return res.end();
+  }
+
   if (pathname === '/admin') {
-    return serveFile(res, path.join(ROOT_DIR, 'Admin', 'index.html')) || sendText(res, 404, 'Not found');
+    return serveFile(res, path.join(ROOT_DIR, 'admin', 'index.html')) || sendText(res, 404, 'Not found');
   }
 
   if (pathname.startsWith('/admin/')) {
     const adminPath = pathname.slice('/admin/'.length);
-    const full = safeResolve(path.join(ROOT_DIR, 'Admin'), adminPath || 'index.html');
+    const full = safeResolve(path.join(ROOT_DIR, 'admin'), adminPath || 'index.html');
     if (!full) return sendText(res, 403, 'Forbidden');
 
     if (serveFile(res, full)) return;

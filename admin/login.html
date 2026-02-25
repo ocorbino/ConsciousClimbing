@@ -60,7 +60,7 @@
             .then(data => {
                 if (data.setupRequired) {
                     // No admin exists, redirect to setup
-                    window.location.href = '/Admin/setup.html';
+                    window.location.href = '/admin/setup.html';
                 }
             })
             .catch(() => {});
@@ -75,7 +75,7 @@
             .then(res => res.json())
             .then(data => {
                 if (data.valid) {
-                    window.location.href = '/Admin/';
+                    window.location.href = '/admin/';
                 } else {
                     localStorage.removeItem('admin_token');
                 }
@@ -118,7 +118,7 @@
                     // Store token and redirect
                     localStorage.setItem('admin_token', data.token);
                     localStorage.setItem('admin_user', JSON.stringify(data.user));
-                    window.location.href = '/Admin/';
+                    window.location.href = '/admin/';
                 } else {
                     showError(data.error || 'Login failed. Please try again.');
                 }
