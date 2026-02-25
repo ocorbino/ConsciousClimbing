@@ -31,7 +31,7 @@
         <p class="eyebrow">Booking Request</p>
         <h1>Tell us about your climbing day</h1>
 
-        <form class="booking-form" action="/api/bookings" method="post">
+        <form class="booking-form" id="bookingForm">
           <label>First name <input type="text" name="first_name" required /></label>
           <label>Last name <input type="text" name="last_name" required /></label>
           <label>Email <input type="email" name="email" required /></label>
@@ -74,12 +74,73 @@
             Special requests
             <textarea name="special_requests" rows="5" placeholder="Tell us your experience level, goals, and any special requests."></textarea>
           </label>
-          <p class="small-note full-width">Form is wired to a placeholder backend route: <code>/api/bookings</code>.</p>
-          <button class="btn full-width" type="submit">Submit Booking Request</button>
+          <p class="small-note full-width">Book now and your request is added to the admin schedule.</p>
+          <p class="small-note full-width" id="bookingMessage" style="display: none;"></p>
+          <button class="btn full-width" type="submit" id="bookingSubmitBtn">Submit Booking Request</button>
         </form>
       </section>
     </main>
 
     <footer class="site-footer">Conscious Climbing • McCall, ID</footer>
+    <script>
+      const bookingForm = document.getElementById("bookingForm");
+      const bookingMessage = document.getElementById("bookingMessage");
+      const bookingSubmitBtn = document.getElementById("bookingSubmitBtn");
+
+      function setBookingMessage(text, type) {
+        bookingMessage.textContent = text;
+        bookingMessage.style.display = "block";
+        bookingMessage.style.color = type === "error" ? "#b42318" : "#166534";
+        bookingMessage.style.fontWeight = "600";
+      }
+
+      bookingForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        bookingMessage.style.display = "none";
+        bookingSubmitBtn.disabled = true;
+        const originalBtnText = bookingSubmitBtn.textContent;
+        bookingSubmitBtn.textContent = "Submitting...";
+
+        const formData = new FormData(bookingForm);
+        const payload = Object.fromEntries(formData.entries());
+
+        try {
+          // Primary endpoint, with a fallback for environments that only expose /api/quotes.
+          let response = await fetch("/api/bookings", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+          });
+
+          if (response.status === 404) {
+            response = await fetch("/api/quotes", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(payload)
+            });
+          }
+
+          let data = {};
+          try {
+            data = await response.json();
+          } catch (_) {}
+
+          if (!response.ok || !data.success) {
+            throw new Error(data.error || "Unable to submit booking right now.");
+          }
+
+          bookingForm.reset();
+          setBookingMessage("Booking received. We added it to the admin schedule and will follow up shortly.", "success");
+        } catch (error) {
+          setBookingMessage(
+            "Booking could not be submitted. Please try again in a minute or call us directly.",
+            "error"
+          );
+        } finally {
+          bookingSubmitBtn.disabled = false;
+          bookingSubmitBtn.textContent = originalBtnText;
+        }
+      });
+    </script>
   </body>
 </html>
