@@ -387,7 +387,7 @@ async function handleCoreData(request, env, url) {
       bind.push(limit);
 
       const rows = await env.DB.prepare(sql).bind(...bind).all();
-      return json({ jobs: rows.results || [] });
+      return json({ success: true, jobs: rows.results || [] });
     }
 
     if (method === "POST") {
