@@ -113,7 +113,6 @@
                                 <option value="">All Statuses</option>
                                 <option value="new">New</option>
                                 <option value="contacted">Contacted</option>
-                                <option value="quoted">Estimate Sent</option>
                                 <option value="scheduled">Scheduled</option>
                                 <option value="completed">Completed</option>
                                 <option value="sold">Sold</option>
@@ -1046,21 +1045,17 @@
             <h2 style="margin-bottom:4px;">Call Ended</h2>
             <p style="color:#6b7280;margin-bottom:16px;">How did the call with <strong id="postCallContactName"></strong> go?</p>
             <div class="post-call-actions">
-                <button class="post-call-btn post-call-callback" onclick="postCallAction('callback')">
+                <button class="post-call-btn post-call-callback" onclick="postCallAction('left_voicemail')">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
-                    Callback
+                    Left Voicemail
                 </button>
-                <button class="post-call-btn post-call-schedule" onclick="postCallAction('schedule')">
+                <button class="post-call-btn post-call-schedule" onclick="postCallAction('rescheduled')">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-                    Schedule
+                    Rescheduled
                 </button>
                 <button class="post-call-btn post-call-not-interested" onclick="postCallAction('not_interested')">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
                     Not Interested
-                </button>
-                <button class="post-call-btn post-call-quoted" onclick="postCallAction('quoted')">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
-                    Estimate Sent
                 </button>
             </div>
         </div>
@@ -4496,7 +4491,6 @@
                             <select class="status-select status-${q.status}" onclick="event.stopPropagation()" onchange="updateStatus(${q.id}, this.value)">
                                 <option value="new" ${q.status === 'new' ? 'selected' : ''}>New</option>
                                 <option value="contacted" ${q.status === 'contacted' ? 'selected' : ''}>Contacted</option>
-                                <option value="quoted" ${q.status === 'quoted' ? 'selected' : ''}>Estimate Sent</option>
                                 <option value="scheduled" ${q.status === 'scheduled' ? 'selected' : ''}>Scheduled</option>
                                 <option value="completed" ${q.status === 'completed' ? 'selected' : ''}>Completed</option>
                                 <option value="sold" ${q.status === 'sold' ? 'selected' : ''}>Sold</option>
@@ -6623,7 +6617,7 @@
             const quoteId = contact.quote_id;
 
             // Status section (leads only)
-            const statusOptions = ['new','contacted','quoted','scheduled','completed','lost'];
+            const statusOptions = ['new','contacted','scheduled','completed','lost'];
             const statusHtml = isLead ? `
                 <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;padding:10px 14px;background:#f8fafc;border-radius:8px;">
                     <span class="contact-badge badge-${contact.status || 'new'}" id="cdStatusBadge">${contact.status || 'new'}</span>
@@ -6959,29 +6953,86 @@
             _pendingCall = null;
         }
 
-        function postCallAction(action) {
+        function findPendingCallContact(call) {
+            return currentContacts.find(c => c.quote_id == call.quoteId || c.contact_id == call.contactId) || null;
+        }
+
+        async function addCallContactToContacts(call, action) {
+            const contact = findPendingCallContact(call);
+            if (contact && (contact.contact_type === 'customer' || contact.customer_id)) return;
+
+            const name = (contact?.name || call.contactName || '').trim();
+            const phone = (contact?.phone || call.phone || '').trim();
+            const email = (contact?.email || '').trim();
+            const address = (contact?.address || '').trim();
+
+            if (!name && !phone && !email) return;
+
+            const existingCustomer = currentContacts.find(c =>
+                c.contact_type === 'customer' && (
+                    (phone && c.phone === phone) ||
+                    (email && c.email && c.email.toLowerCase() === email.toLowerCase()) ||
+                    (name && c.name && c.name.toLowerCase() === name.toLowerCase())
+                )
+            );
+            if (existingCustomer) return;
+
+            const { firstName, lastName } = splitName(name || 'Customer');
+            const actionLabels = {
+                left_voicemail: 'Left voicemail',
+                rescheduled: 'Rescheduled',
+                not_interested: 'Not interested'
+            };
+            const notes = `Added after call outcome: ${actionLabels[action] || 'Call completed'}`;
+
+            const response = await fetch(`${API_BASE}/customers`, {
+                method: 'POST',
+                headers: getAuthHeaders(),
+                body: JSON.stringify({
+                    first_name: firstName || 'Customer',
+                    last_name: lastName,
+                    phone,
+                    email,
+                    address,
+                    notes
+                })
+            });
+            const data = await response.json();
+            if (!response.ok || !data.success) {
+                throw new Error(data.error || 'Failed to save contact after call');
+            }
+
+            if (currentSection === 'contacts') {
+                await loadContacts();
+            }
+        }
+
+        async function postCallAction(action) {
             const call = _pendingCall;
             closePostCallModal();
             if (!call) return;
 
+            try {
+                await addCallContactToContacts(call, action);
+            } catch (error) {
+                console.error('Post-call contact add failed:', error);
+            }
+
             switch (action) {
-                case 'callback':
-                    promptCallback(call.quoteId, call.contactName);
+                case 'left_voicemail':
+                    if (call.quoteId) {
+                        updateContactStatus(call.quoteId, 'contacted');
+                    }
                     break;
-                case 'schedule':
+                case 'rescheduled':
                     // Find the contact and open schedule modal
-                    const contact = currentContacts.find(c => c.quote_id == call.quoteId || c.contact_id == call.contactId);
+                    const contact = findPendingCallContact(call);
                     closeContactDetail();
                     openScheduleModal(contact || { name: call.contactName, phone: call.phone, quote_id: call.quoteId });
                     break;
                 case 'not_interested':
                     if (call.quoteId) {
                         confirmNotInterested(call.quoteId);
-                    }
-                    break;
-                case 'quoted':
-                    if (call.quoteId) {
-                        updateContactStatus(call.quoteId, 'quoted');
                     }
                     break;
             }

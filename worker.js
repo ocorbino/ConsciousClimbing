@@ -20,8 +20,8 @@ export default {
 
     // Admin clean URLs without redirect chains
     const adminRouteMap = {
-      "/admin": "/admin/login.html",
-      "/admin/": "/admin/login.html",
+      "/admin": "/admin/index.html",
+      "/admin/": "/admin/index.html",
       "/admin/login": "/admin/login.html",
       "/admin/login/": "/admin/login.html",
       "/admin/setup": "/admin/setup.html",
