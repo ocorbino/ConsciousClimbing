@@ -47,6 +47,8 @@
 
             <div class="login-footer">
                 <a href="../index.html">Back to Website</a>
+                <span style="color:#94a3b8; margin: 0 8px;">|</span>
+                <a href="/admin/setup.html">New Admin</a>
             </div>
         </div>
     </div>
@@ -62,7 +64,7 @@
             const lastUsername = localStorage.getItem('admin_last_username');
             if (lastUsername && !usernameInput.value) usernameInput.value = lastUsername;
 
-            // Verify existing token first; only check setup if no valid session exists.
+            // Verify existing token first.
             const existingToken = localStorage.getItem('admin_token');
             if (existingToken) {
                 try {
@@ -79,16 +81,6 @@
                 }
                 localStorage.removeItem('admin_token');
                 localStorage.removeItem('admin_user');
-            }
-
-            try {
-                const setupRes = await fetch('/api/auth/setup');
-                const setupData = await setupRes.json();
-                if (setupData.setupRequired) {
-                    window.location.href = '/admin/setup.html';
-                }
-            } catch (_) {
-                // Keep login screen visible if API is temporarily unavailable.
             }
         }
 

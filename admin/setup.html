@@ -58,16 +58,7 @@
     </div>
 
     <script>
-        // Check if setup is still needed
-        fetch('/api/auth/setup')
-            .then(res => res.json())
-            .then(data => {
-                if (!data.setupRequired) {
-                    // Admin already exists, redirect to login
-                    window.location.href = '/admin/login.html';
-                }
-            })
-            .catch(() => {});
+        // Keep setup page accessible when directly requested.
 
         const form = document.getElementById('setupForm');
         const setupBtn = document.getElementById('setupBtn');
@@ -124,7 +115,11 @@
                         window.location.href = '/admin/login.html';
                     }, 2000);
                 } else {
-                    showError(data.error || 'Setup failed. Please try again.');
+                    if (response.status === 409) {
+                        showError('Setup is already completed. Sign in and add users in Settings > Manage Admins.');
+                    } else {
+                        showError(data.error || 'Setup failed. Please try again.');
+                    }
                     setupBtn.querySelector('.btn-text').style.display = 'inline';
                     setupBtn.querySelector('.btn-loading').style.display = 'none';
                     setupBtn.disabled = false;
