@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Login | Collin's Mobile Mechanics</title>
+    <title>Admin Login | Conscious Climbing</title>
     <link rel="icon" type="image/svg+xml" href="../favicon.svg">
-    <link rel="stylesheet" href="../styles.css?v=2.0">
+    <link rel="stylesheet" href="../styles.css?v=2.1">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -15,12 +15,10 @@
         <div class="login-container">
             <div class="login-header">
                 <div class="login-logo">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path>
-                    </svg>
+                    <img src="../assets/logo-mountains.jpg" alt="Conscious Climbing logo">
                 </div>
                 <h1>Admin Login</h1>
-                <p>Collin's Mobile Mechanics</p>
+                <p>Conscious Climbing</p>
             </div>
 
             <form id="loginForm" class="login-form">
@@ -54,39 +52,47 @@
     </div>
 
     <script>
-        // Check if setup is needed first
-        fetch('/api/auth/setup')
-            .then(res => res.json())
-            .then(data => {
-                if (data.setupRequired) {
-                    // No admin exists, redirect to setup
-                    window.location.href = '/admin/setup.html';
-                }
-            })
-            .catch(() => {});
-
-        // Check if already logged in
-        const existingToken = localStorage.getItem('admin_token');
-        if (existingToken) {
-            // Verify token is still valid
-            fetch('/api/auth/verify', {
-                headers: { 'Authorization': `Bearer ${existingToken}` }
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.valid) {
-                    window.location.href = '/admin/';
-                } else {
-                    localStorage.removeItem('admin_token');
-                }
-            })
-            .catch(() => localStorage.removeItem('admin_token'));
-        }
-
         // Login form submission
         const form = document.getElementById('loginForm');
         const loginBtn = document.getElementById('loginBtn');
         const errorMessage = document.getElementById('errorMessage');
+        const usernameInput = document.getElementById('username');
+
+        async function initializeLoginPage() {
+            const lastUsername = localStorage.getItem('admin_last_username');
+            if (lastUsername && !usernameInput.value) usernameInput.value = lastUsername;
+
+            // Verify existing token first; only check setup if no valid session exists.
+            const existingToken = localStorage.getItem('admin_token');
+            if (existingToken) {
+                try {
+                    const verifyRes = await fetch('/api/auth/verify', {
+                        headers: { 'Authorization': `Bearer ${existingToken}` }
+                    });
+                    const verifyData = await verifyRes.json();
+                    if (verifyData.valid) {
+                        window.location.href = '/admin/';
+                        return;
+                    }
+                } catch (_) {
+                    // If verify call fails, continue to setup check below.
+                }
+                localStorage.removeItem('admin_token');
+                localStorage.removeItem('admin_user');
+            }
+
+            try {
+                const setupRes = await fetch('/api/auth/setup');
+                const setupData = await setupRes.json();
+                if (setupData.setupRequired) {
+                    window.location.href = '/admin/setup.html';
+                }
+            } catch (_) {
+                // Keep login screen visible if API is temporarily unavailable.
+            }
+        }
+
+        initializeLoginPage();
 
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -118,6 +124,7 @@
                     // Store token and redirect
                     localStorage.setItem('admin_token', data.token);
                     localStorage.setItem('admin_user', JSON.stringify(data.user));
+                    localStorage.setItem('admin_last_username', username);
                     window.location.href = '/admin/';
                 } else {
                     showError(data.error || 'Login failed. Please try again.');

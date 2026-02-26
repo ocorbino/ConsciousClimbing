@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard | Collin's Mobile Mechanics</title>
+    <title>Admin Dashboard | Conscious Climbing</title>
 
     <!-- PWA Meta Tags -->
     <meta name="theme-color" content="#4a9fff">
-    <meta name="description" content="Manage quotes, jobs, invoices, and receipts for Collin's Mobile Mechanics">
+    <meta name="description" content="Manage quotes, jobs, invoices, and receipts for Conscious Climbing">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="CMM Admin">
+    <meta name="apple-mobile-web-app-title" content="CC Admin">
 
     <!-- Icons -->
     <link rel="icon" type="image/svg+xml" href="../favicon.svg">
@@ -113,7 +113,7 @@
                                 <option value="">All Statuses</option>
                                 <option value="new">New</option>
                                 <option value="contacted">Contacted</option>
-                                <option value="quoted">Quoted</option>
+                                <option value="quoted">Estimate Sent</option>
                                 <option value="scheduled">Scheduled</option>
                                 <option value="completed">Completed</option>
                                 <option value="sold">Sold</option>
@@ -257,7 +257,7 @@
     <div id="quoteModal" class="modal" style="display: none;">
         <div class="modal-content">
             <span class="modal-close" onclick="closeModal()">&times;</span>
-            <h2>Quote Details</h2>
+            <h2>Booking Details</h2>
             <div id="quoteDetails"></div>
         </div>
     </div>
@@ -363,7 +363,7 @@
                 </div>
 
                 <div class="perm-section">
-                    <h4>Leads & Quotes</h4>
+                    <h4>Leads & Bookings</h4>
                     <div class="perm-grid">
                         <label><input type="checkbox" class="perm-check" data-perm="can_create_lead"> Create</label>
                         <label><input type="checkbox" class="perm-check" data-perm="can_edit_lead"> Edit</label>
@@ -434,7 +434,7 @@
             <span class="modal-close" onclick="closeEmailSettingsModal()">&times;</span>
             <h2>Email Notifications</h2>
             <p style="color: #6b7280; margin-bottom: 20px;">
-                Quote requests will be sent to these email addresses:
+                Booking requests will be sent to these email addresses:
             </p>
             <ul class="email-list" id="emailList">
                 <li class="email-item" style="justify-content: center; color: #6b7280;">Loading...</li>
@@ -487,7 +487,7 @@
                             <span style="font-size: 0.85rem; color: #6b7280;">Show on invoices</span>
                         </label>
                     </div>
-                    <input type="text" id="settingVenmo" placeholder="CollinsMobileMechanics" style="width: 100%; padding: 10px; border: 2px solid #e2e8f0; border-radius: 6px;">
+                    <input type="text" id="settingVenmo" placeholder="ConsciousClimbing" style="width: 100%; padding: 10px; border: 2px solid #e2e8f0; border-radius: 6px;">
                     <small style="color: #6b7280;">venmo.com/<strong>username</strong></small>
                 </div>
 
@@ -500,7 +500,7 @@
                             <span style="font-size: 0.85rem; color: #6b7280;">Show on invoices</span>
                         </label>
                     </div>
-                    <input type="text" id="settingPaypal" placeholder="collinsmobilemechanics" style="width: 100%; padding: 10px; border: 2px solid #e2e8f0; border-radius: 6px;">
+                    <input type="text" id="settingPaypal" placeholder="consciousclimbing" style="width: 100%; padding: 10px; border: 2px solid #e2e8f0; border-radius: 6px;">
                     <small style="color: #6b7280;">paypal.me/<strong>username</strong></small>
                 </div>
 
@@ -514,7 +514,7 @@
                 </div>
 
                 <div class="form-group" style="margin-bottom: 20px;">
-                    <label for="settingPartsMarkup" style="display: block; font-weight: 600; margin-bottom: 5px;">Standard Parts Markup %</label>
+                    <label for="settingPartsMarkup" style="display: block; font-weight: 600; margin-bottom: 5px;">Standard Gear Markup %</label>
                     <input type="number" id="settingPartsMarkup" placeholder="20" min="0" max="100" step="1" style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px;">
                     <small style="color: #6b7280;">Auto-applied markup on parts (e.g. 20 = 20% markup)</small>
                 </div>
@@ -536,11 +536,11 @@
                     </div>
                     <div style="display: flex; align-items: center; gap: 8px;">
                         <input type="color" id="settingColorDiagnostic" value="#2563eb" style="width: 36px; height: 36px; border: 2px solid #e2e8f0; border-radius: 6px; cursor: pointer; padding: 2px;">
-                        <span style="font-weight: 600; font-size: 0.9rem;">Diagnostic</span>
+                        <span style="font-weight: 600; font-size: 0.9rem;">Private Session</span>
                     </div>
                     <div style="display: flex; align-items: center; gap: 8px;">
                         <input type="color" id="settingColorRoadside" value="#f59e0b" style="width: 36px; height: 36px; border: 2px solid #e2e8f0; border-radius: 6px; cursor: pointer; padding: 2px;">
-                        <span style="font-weight: 600; font-size: 0.9rem;">Roadside</span>
+                        <span style="font-weight: 600; font-size: 0.9rem;">Group Session</span>
                     </div>
                     <div style="display: flex; align-items: center; gap: 8px;">
                         <input type="color" id="settingColorPersonal" value="#ec4899" style="width: 36px; height: 36px; border: 2px solid #e2e8f0; border-radius: 6px; cursor: pointer; padding: 2px;">
@@ -570,7 +570,7 @@
                 </div>
                 <div class="form-group">
                     <label for="newCustomerEmail">Email</label>
-                    <input type="email" id="newCustomerEmail" placeholder="customer@email.com">
+                    <input type="email" id="newCustomerEmail" placeholder="guest@email.com">
                 </div>
                 <div class="form-group">
                     <label for="newCustomerAddress">Address</label>
@@ -579,11 +579,11 @@
                 <div style="display: grid; grid-template-columns: 1fr 110px 110px; gap: 10px;">
                     <div class="form-group">
                         <label for="newCustomerCity">City</label>
-                        <input type="text" id="newCustomerCity" placeholder="Kokomo">
+                        <input type="text" id="newCustomerCity" placeholder="McCall">
                     </div>
                     <div class="form-group">
                         <label for="newCustomerState">State</label>
-                        <input type="text" id="newCustomerState" maxlength="2" placeholder="IN">
+                        <input type="text" id="newCustomerState" maxlength="2" placeholder="ID">
                     </div>
                     <div class="form-group">
                         <label for="newCustomerZip">Zip</label>
@@ -592,7 +592,7 @@
                 </div>
                 <div class="form-group">
                     <label for="newCustomerNotes">Notes</label>
-                    <textarea id="newCustomerNotes" rows="3" placeholder="Vehicle details, preferred contact time, etc."
+                    <textarea id="newCustomerNotes" rows="3" placeholder="Climbing goals, experience level, and preferred contact time."
                         style="width: 100%; padding: 10px 15px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 0.95rem; resize: vertical; font-family: inherit;"></textarea>
                 </div>
                 <button type="submit" class="btn btn-primary" id="saveCustomerBtn" style="width: 100%;">
@@ -636,7 +636,7 @@
                     <div class="form-row">
                         <div class="form-group">
                             <label for="receiptCustomerEmail">Email</label>
-                            <input type="email" id="receiptCustomerEmail" placeholder="customer@email.com">
+                            <input type="email" id="receiptCustomerEmail" placeholder="guest@email.com">
                         </div>
                         <div class="form-group">
                             <label for="receiptDate">Date</label>
@@ -645,8 +645,8 @@
                     </div>
                     <div class="form-row">
                         <div class="form-group" style="flex: 1;">
-                            <label for="receiptVehicle">Vehicle</label>
-                            <input type="text" id="receiptVehicle" placeholder="Year Make Model">
+                            <label for="receiptVehicle">Trip/Route</label>
+                            <input type="text" id="receiptVehicle" placeholder="Route, crag, or trip details">
                         </div>
                     </div>
                     <input type="hidden" id="receiptQuoteId">
@@ -655,7 +655,7 @@
 
             <!-- Parts/Line Items -->
             <div class="receipt-section">
-                <h3>Parts & Services</h3>
+                <h3>Gear & Services</h3>
                 <div class="receipt-add-item">
                     <button class="btn btn-secondary" onclick="addPartManually()">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
@@ -678,10 +678,10 @@
 
             <!-- Labor Line (Always shown) -->
             <div class="receipt-section labor-section">
-                <h3>Labor</h3>
+                <h3>Guide Time</h3>
                 <div class="labor-item">
                     <div class="labor-info">
-                        <span class="labor-label">Diagnostic, Labor & Travel</span>
+                        <span class="labor-label">Guide Time & Travel</span>
                     </div>
                     <div class="labor-cost">
                         <span>$</span>
@@ -720,11 +720,11 @@
             <!-- Totals -->
             <div class="receipt-section totals-section">
                 <div class="totals-row">
-                    <span>Parts Subtotal:</span>
+                    <span>Gear Subtotal:</span>
                     <span id="partsSubtotal">$0.00</span>
                 </div>
                 <div class="totals-row">
-                    <span>Labor:</span>
+                    <span>Guide Time:</span>
                     <span id="laborTotal">$0.00</span>
                 </div>
                 <div class="totals-row">
@@ -907,8 +907,8 @@
                 <div class="form-group" style="margin-bottom:12px;">
                     <div style="display:flex;gap:4px;flex-wrap:wrap;" id="schedTypeButtons">
                         <button type="button" class="sched-type-btn active" data-type="job" onclick="setSchedType('job')">Job</button>
-                        <button type="button" class="sched-type-btn" data-type="diagnostic" onclick="setSchedType('diagnostic')">Diagnostic</button>
-                        <button type="button" class="sched-type-btn" data-type="roadside" onclick="setSchedType('roadside')">Roadside</button>
+                        <button type="button" class="sched-type-btn" data-type="diagnostic" onclick="setSchedType('diagnostic')">Private Session</button>
+                        <button type="button" class="sched-type-btn" data-type="roadside" onclick="setSchedType('roadside')">Group Session</button>
                         <button type="button" class="sched-type-btn" data-type="personal" onclick="setSchedType('personal')">Personal</button>
                     </div>
                 </div>
@@ -935,7 +935,7 @@
                 </div>
                 <div class="form-group">
                     <label for="schedTitle" id="schedTitleLabel">Title *</label>
-                    <input type="text" id="schedTitle" required placeholder="e.g. Oil Change - 2015 Honda Civic" style="width:100%;padding:10px 14px;border:2px solid #e2e8f0;border-radius:8px;">
+                    <input type="text" id="schedTitle" required placeholder="e.g. Guided Climb - Elephant's Perch" style="width:100%;padding:10px 14px;border:2px solid #e2e8f0;border-radius:8px;">
                 </div>
                 <div class="form-group">
                     <label for="schedDate">Date *</label>
@@ -1095,7 +1095,7 @@
                 </button>
                 <button class="post-call-btn post-call-quoted" onclick="postCallAction('quoted')">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
-                    Quoted
+                    Estimate Sent
                 </button>
             </div>
         </div>
@@ -1206,11 +1206,11 @@
                 </div>
                 <div class="stat-card" style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); color: white; padding: 20px; border-radius: 12px; text-align: center;">
                     <div style="font-size: 2rem; font-weight: 700;" id="totalPartsAmount">$0.00</div>
-                    <div style="font-size: 0.85rem; opacity: 0.9;">Parts Revenue</div>
+                    <div style="font-size: 0.85rem; opacity: 0.9;">Gear Revenue</div>
                 </div>
                 <div class="stat-card" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; padding: 20px; border-radius: 12px; text-align: center;">
                     <div style="font-size: 2rem; font-weight: 700;" id="totalLaborAmount">$0.00</div>
-                    <div style="font-size: 0.85rem; opacity: 0.9;">Labor Revenue</div>
+                    <div style="font-size: 0.85rem; opacity: 0.9;">Guide Revenue</div>
                 </div>
             </div>
 
@@ -1235,7 +1235,7 @@
                         <tr>
                             <th>Date</th>
                             <th>Customer</th>
-                            <th>Vehicle</th>
+                            <th>Trip/Route</th>
                             <th>Items</th>
                             <th>Total</th>
                             <th>Actions</th>
@@ -3542,7 +3542,7 @@
 
         // Send test quote notification email (to Jordan only)
         async function sendTestQuoteEmail() {
-            if (!confirm('Send a test quote notification email to sheely121@gmail.com?')) return;
+            if (!confirm('Send a test booking notification email to sheely121@gmail.com?')) return;
             try {
                 const resp = await fetch(`${API_BASE}/feedback`, {
                     method: 'POST',
@@ -3572,7 +3572,7 @@
             }
         }
 
-        // Check for unanswered quote requests and show banner
+        // Check for unanswered booking requests and show banner
         async function checkUnansweredQuotes() {
             try {
                 const resp = await fetch(`${API_BASE}/quotes?status=new`, { headers: getAuthHeaders() });
@@ -3581,7 +3581,7 @@
                 const banner = document.getElementById('quoteBanner');
                 if (newQuotes.length > 0) {
                     document.getElementById('quoteBannerText').textContent =
-                        `${newQuotes.length} unanswered quote request${newQuotes.length > 1 ? 's' : ''} — tap to view`;
+                        `${newQuotes.length} unanswered booking request${newQuotes.length > 1 ? 's' : ''} — tap to view`;
                     banner.style.display = 'block';
                     document.querySelector('.admin-page').style.paddingTop = '100px';
                 } else {
@@ -4478,7 +4478,7 @@
             if (currentQuotes.length === 0) {
                 tbody.innerHTML = `
                     <tr>
-                        <td colspan="5" class="no-data">No quote requests yet.</td>
+                        <td colspan="5" class="no-data">No booking requests yet.</td>
                     </tr>
                 `;
                 return;
@@ -4504,7 +4504,7 @@
             if (filteredQuotes.length === 0) {
                 tbody.innerHTML = `
                     <tr>
-                        <td colspan="5" class="no-data">${searchTerm ? 'No quotes match your search.' : 'No quote requests yet.'}</td>
+                        <td colspan="5" class="no-data">${searchTerm ? 'No booking requests match your search.' : 'No booking requests yet.'}</td>
                     </tr>
                 `;
                 return;
@@ -4540,7 +4540,7 @@
                             <select class="status-select status-${q.status}" onclick="event.stopPropagation()" onchange="updateStatus(${q.id}, this.value)">
                                 <option value="new" ${q.status === 'new' ? 'selected' : ''}>New</option>
                                 <option value="contacted" ${q.status === 'contacted' ? 'selected' : ''}>Contacted</option>
-                                <option value="quoted" ${q.status === 'quoted' ? 'selected' : ''}>Quoted</option>
+                                <option value="quoted" ${q.status === 'quoted' ? 'selected' : ''}>Estimate Sent</option>
                                 <option value="scheduled" ${q.status === 'scheduled' ? 'selected' : ''}>Scheduled</option>
                                 <option value="completed" ${q.status === 'completed' ? 'selected' : ''}>Completed</option>
                                 <option value="sold" ${q.status === 'sold' ? 'selected' : ''}>Sold</option>
@@ -4624,7 +4624,7 @@
                 ` : ''}
                 ${quote.vehicle_year || quote.vehicle_make || quote.vehicle_model ? `
                 <div class="detail-row">
-                    <span class="detail-label">Vehicle</span>
+                    <span class="detail-label">Trip/Route</span>
                     <span class="detail-value">${[quote.vehicle_year, quote.vehicle_make, quote.vehicle_model].filter(Boolean).join(' ')}</span>
                 </div>
                 ` : ''}
@@ -5276,8 +5276,8 @@
             let printContent = `
                 <div id="printableReceipt" style="font-family: Arial, sans-serif; max-width: 400px; margin: 0 auto; padding: 20px;">
                     <div style="text-align: center; margin-bottom: 20px;">
-                        <h1 style="margin: 0; font-size: 1.5rem; color: #1a2d4a;">Collin's Mobile Mechanics</h1>
-                        <p style="margin: 5px 0; color: #6b7280; font-size: 0.9rem;">Mobile Auto Repair Service</p>
+                        <h1 style="margin: 0; font-size: 1.5rem; color: #1a2d4a;">Conscious Climbing</h1>
+                        <p style="margin: 5px 0; color: #6b7280; font-size: 0.9rem;">Guided Climbing Service</p>
                         <p style="margin: 5px 0; color: #6b7280; font-size: 0.9rem;">Phone: (555) 123-4567</p>
                     </div>
 
@@ -5285,7 +5285,7 @@
                         <p style="margin: 5px 0;"><strong>Date:</strong> ${new Date(date).toLocaleDateString()}</p>
                         <p style="margin: 5px 0;"><strong>Customer:</strong> ${customerName}</p>
                         ${customerPhone ? `<p style="margin: 5px 0;"><strong>Phone:</strong> ${customerPhone}</p>` : ''}
-                        ${vehicle ? `<p style="margin: 5px 0;"><strong>Vehicle:</strong> ${vehicle}</p>` : ''}
+                        ${vehicle ? `<p style="margin: 5px 0;"><strong>Trip/Route:</strong> ${vehicle}</p>` : ''}
                     </div>
 
                     <table style="width: 100%; border-collapse: collapse; margin-bottom: 15px;">
@@ -5305,7 +5305,7 @@
                                 </tr>
                             `}).join('')}
                             <tr style="border-bottom: 1px solid #f3f4f6; background: #f9fafb;">
-                                <td style="padding: 10px 0; font-size: 0.9rem;"><strong>Diagnostic, Labor & Travel</strong></td>
+                                <td style="padding: 10px 0; font-size: 0.9rem;"><strong>Guide Time & Travel</strong></td>
                                 <td style="text-align: right; padding: 10px 0; font-size: 0.9rem;">$${displayLabor.toFixed(2)}</td>
                             </tr>
                         </tbody>
@@ -5313,11 +5313,11 @@
 
                     <div style="border-top: 2px solid #1a2d4a; padding-top: 15px;">
                         <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                            <span>Parts Subtotal:</span>
+                            <span>Gear Subtotal:</span>
                             <span>$${displayPartsSubtotal.toFixed(2)}</span>
                         </div>
                         <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                            <span>Labor:</span>
+                            <span>Guide Time:</span>
                             <span>$${displayLabor.toFixed(2)}</span>
                         </div>
                         ${taxRate > 0 ? `
@@ -5444,11 +5444,11 @@
             // Header
             doc.setFontSize(12);
             doc.setFont('helvetica', 'bold');
-            doc.text("Collin's Mobile Mechanics", 40, y, { align: 'center' });
+            doc.text("Conscious Climbing", 40, y, { align: 'center' });
             y += 5;
             doc.setFontSize(8);
             doc.setFont('helvetica', 'normal');
-            doc.text("Mobile Auto Repair Service", 40, y, { align: 'center' });
+            doc.text("Guided Climbing Service", 40, y, { align: 'center' });
             y += 4;
             doc.text("Phone: (555) 123-4567", 40, y, { align: 'center' });
             y += 6;
@@ -5469,7 +5469,7 @@
                 y += 4;
             }
             if (data.vehicle) {
-                doc.text(`Vehicle: ${data.vehicle}`, leftMargin, y);
+                doc.text(`Trip/Route: ${data.vehicle}`, leftMargin, y);
                 y += 4;
             }
             y += 2;
@@ -5495,7 +5495,7 @@
 
             // Labor
             doc.setFont('helvetica', 'bold');
-            doc.text("Labor & Travel", leftMargin, y);
+            doc.text("Guide Time & Travel", leftMargin, y);
             doc.text(`$${data.labor.toFixed(2)}`, rightMargin, y, { align: 'right' });
             y += 6;
             doc.setFont('helvetica', 'normal');
@@ -5505,10 +5505,10 @@
             y += 5;
 
             // Totals
-            doc.text("Parts Subtotal:", leftMargin, y);
+            doc.text("Gear Subtotal:", leftMargin, y);
             doc.text(`$${data.partsSubtotal.toFixed(2)}`, rightMargin, y, { align: 'right' });
             y += 4;
-            doc.text("Labor:", leftMargin, y);
+            doc.text("Guide Time:", leftMargin, y);
             doc.text(`$${data.labor.toFixed(2)}`, rightMargin, y, { align: 'right' });
             y += 4;
             if (data.taxRate > 0) {
@@ -5570,16 +5570,16 @@
 
             // Business name
             doc.setFontSize(12);
-            doc.text("Collin's Mobile Mechanics", rightMargin, y, { align: 'right' });
+            doc.text("Conscious Climbing", rightMargin, y, { align: 'right' });
             y += 6;
             doc.setFontSize(9);
             doc.setFont('helvetica', 'normal');
             doc.setTextColor(100, 100, 100);
-            doc.text("Mobile Auto Repair Service", rightMargin, y, { align: 'right' });
+            doc.text("Guided Climbing Service", rightMargin, y, { align: 'right' });
             y += 4;
             doc.text("(765) 244-9136", rightMargin, y, { align: 'right' });
             y += 4;
-            doc.text("collinsmobilemechanics.com", rightMargin, y, { align: 'right' });
+            doc.text("consciousclimbing.corbinlawson.com", rightMargin, y, { align: 'right' });
             y += 15;
 
             // Invoice details box
@@ -5831,7 +5831,7 @@
             // Add labor as a line item
             if (data.labor > 0) {
                 lineItems.push({
-                    description: 'Labor & Travel',
+                    description: 'Guide Time & Travel',
                     quantity: 1,
                     unit_price: data.labor,
                     photo_url: null
@@ -5848,7 +5848,7 @@
                 customer_name: data.customerName,
                 customer_email: data.customerEmail,
                 customer_phone: data.customerPhone,
-                notes: data.vehicle ? `Vehicle: ${data.vehicle}` : '',
+                notes: data.vehicle ? `Trip/Route: ${data.vehicle}` : '',
                 line_items: lineItems
             };
 
@@ -6062,7 +6062,7 @@
                 ` : ''}
                 ${receipt.vehicle ? `
                 <div class="detail-row">
-                    <span class="detail-label">Vehicle</span>
+                    <span class="detail-label">Trip/Route</span>
                     <span class="detail-value">${receipt.vehicle}</span>
                 </div>
                 ` : ''}
@@ -6078,18 +6078,18 @@
                         <tbody>
                             ${itemsHtml}
                             <tr style="border-top: 1px solid #e5e7eb; background: #f9fafb;">
-                                <td style="padding: 8px 0;"><strong>Labor</strong></td>
+                                <td style="padding: 8px 0;"><strong>Guide Time</strong></td>
                                 <td style="text-align: right; padding: 8px 0;">$${receipt.labor_amount.toFixed(2)}</td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
                 <div class="detail-row">
-                    <span class="detail-label">Parts Subtotal</span>
+                    <span class="detail-label">Gear Subtotal</span>
                     <span class="detail-value">$${receipt.parts_subtotal.toFixed(2)}</span>
                 </div>
                 <div class="detail-row">
-                    <span class="detail-label">Labor</span>
+                    <span class="detail-label">Guide Time</span>
                     <span class="detail-value">$${receipt.labor_amount.toFixed(2)}</span>
                 </div>
                 ${receipt.tax_amount > 0 ? `
@@ -6467,7 +6467,7 @@
                 <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #f1f5f9;">
                     <div>
                         <div style="font-weight:600;font-size:0.9rem;">${sanitizeHtml(r.customer_name)}</div>
-                        <div style="font-size:0.8rem;color:#6b7280;">${r.vehicle || 'No vehicle'} &middot; ${new Date(r.created_at).toLocaleDateString('en-US',{month:'short',day:'numeric'})}</div>
+                        <div style="font-size:0.8rem;color:#6b7280;">${r.vehicle || 'No trip details'} &middot; ${new Date(r.created_at).toLocaleDateString('en-US',{month:'short',day:'numeric'})}</div>
                     </div>
                     <div style="font-weight:700;font-size:0.95rem;color:#10b981;">$${(r.total || 0).toFixed(2)}</div>
                 </div>
@@ -6594,14 +6594,14 @@
         }
 
         async function sendQuoteEmail(quoteId, email, name) {
-            const subject = encodeURIComponent('Quote from Collins Mobile Mechanics');
-            const body = encodeURIComponent('Hi ' + name + ',\n\nThank you for reaching out! Here are the details for your quote:\n\n[Add quote details here]\n\nPlease let me know if you have any questions.\n\nCollin\nCollins Mobile Mechanics\n(765) 244-9136');
+            const subject = encodeURIComponent('Booking details from Conscious Climbing');
+            const body = encodeURIComponent('Hi ' + name + ',\n\nThanks for booking with us! Here are your booking details:\n\n[Add trip details here]\n\nPlease let us know if you have any questions.\n\nConscious Climbing Team\nconsciousclimbing.corbinlawson.com');
             window.open('mailto:' + email + '?subject=' + subject + '&body=' + body, '_self');
             try {
                 await fetch(API_BASE + '/quotes', {
                     method: 'PATCH',
                     headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + authToken },
-                    body: JSON.stringify({ id: quoteId, status: 'contacted', admin_notes: 'Quote sent via email' })
+                    body: JSON.stringify({ id: quoteId, status: 'contacted', admin_notes: 'Booking details sent via email' })
                 });
                 if (currentSection === 'todo') loadTodoView();
             } catch (e) { /* best effort */ }
@@ -6732,7 +6732,7 @@
                     ${phoneDisplay ? `<div style="margin-bottom:6px;"><strong>Phone:</strong> <a href="tel:${sanitizeHtml(contact.phone)}">${sanitizeHtml(phoneDisplay)}</a></div>` : ''}
                     ${contact.email ? `<div style="margin-bottom:6px;"><strong>Email:</strong> <a href="mailto:${sanitizeHtml(contact.email)}">${sanitizeHtml(contact.email)}</a></div>` : ''}
                     ${contact.address ? `<div style="margin-bottom:6px;"><strong>Address:</strong> <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(contact.address)}" target="_blank" rel="noopener" style="color:#3b82f6;">${sanitizeHtml(contact.address)}</a></div>` : ''}
-                    ${contact.vehicle ? `<div style="margin-bottom:6px;"><strong>Vehicle:</strong> ${sanitizeHtml(contact.vehicle)}</div>` : ''}
+                    ${contact.vehicle ? `<div style="margin-bottom:6px;"><strong>Trip/Route:</strong> ${sanitizeHtml(contact.vehicle)}</div>` : ''}
                     ${contact.issue_description ? `<div style="margin-bottom:6px;color:#6b7280;font-size:0.85rem;">${sanitizeHtml(contact.issue_description.substring(0,200))}</div>` : ''}
                     <div style="color:#94a3b8;font-size:0.8rem;">Added ${dateAdded}</div>
                 </div>
@@ -7405,7 +7405,7 @@
             }
             const dateLabel = new Date(job.scheduled_date + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
             const entryType = job.entry_type || 'job';
-            const typeLabelsPopover = { job: 'Job', diagnostic: 'Diagnostic', roadside: 'Roadside', personal: 'Personal', event: 'Event' };
+            const typeLabelsPopover = { job: 'Guided Day', diagnostic: 'Private Session', roadside: 'Group Session', personal: 'Personal', event: 'Event' };
             const typeColors = { job: 'var(--color-job, #7c3aed)', diagnostic: 'var(--color-diagnostic, #2563eb)', roadside: 'var(--color-roadside, #f59e0b)', personal: 'var(--color-personal, #ec4899)' };
 
             let actionsHtml = '';
@@ -7499,10 +7499,10 @@
             });
 
             const placeholders = {
-                job: 'e.g. Oil Change - 2015 Honda Civic',
-                diagnostic: 'e.g. Check engine light - 2018 Ford F150',
-                roadside: 'e.g. Flat tire - I-65 mile marker 42',
-                personal: 'e.g. Parts pickup, Lunch, Dentist'
+                job: "e.g. Guided Climb - Elephant's Perch",
+                diagnostic: 'e.g. Private Session - anchor practice',
+                roadside: 'e.g. Group Session - beginner day',
+                personal: 'e.g. Client check-in, gear prep, route scouting'
             };
             titleInput.placeholder = placeholders[type] || placeholders.job;
 
@@ -7746,7 +7746,7 @@
                 const match = schedContactCache.find(c => c.name === job.contact_name);
                 if (match) document.getElementById('schedContactSelect').value = match.contact_id;
             });
-            const typeLabels = { job: 'Job', diagnostic: 'Diagnostic', roadside: 'Roadside', personal: 'Personal', event: 'Event' };
+            const typeLabels = { job: 'Guided Day', diagnostic: 'Private Session', roadside: 'Group Session', personal: 'Personal', event: 'Event' };
             document.getElementById('scheduleModalTitle').textContent = 'Edit ' + (typeLabels[job.entry_type] || 'Appointment');
             document.getElementById('schedJobId').value = job.job_id;
             document.getElementById('schedQuoteId').value = job.quote_id || '';
@@ -8352,16 +8352,16 @@
 
             // Business name
             doc.setFontSize(12);
-            doc.text("Collin's Mobile Mechanics", rightMargin, y, { align: 'right' });
+            doc.text("Conscious Climbing", rightMargin, y, { align: 'right' });
             y += 6;
             doc.setFontSize(9);
             doc.setFont('helvetica', 'normal');
             doc.setTextColor(100, 100, 100);
-            doc.text("Mobile Auto Repair Service", rightMargin, y, { align: 'right' });
+            doc.text("Guided Climbing Service", rightMargin, y, { align: 'right' });
             y += 4;
             doc.text("(765) 244-9136", rightMargin, y, { align: 'right' });
             y += 4;
-            doc.text("collinsmobilemechanics.com", rightMargin, y, { align: 'right' });
+            doc.text("consciousclimbing.corbinlawson.com", rightMargin, y, { align: 'right' });
             y += 15;
 
             // Payment Status Banner
@@ -9158,7 +9158,7 @@
 
             if (!filtered.length) {
                 container.innerHTML = '<div style="text-align:center;color:#6b7280;padding:40px;font-size:0.9rem;">' +
-                    (msgConversations.length ? 'No matching conversations' : 'No conversations yet.<br>Send a message from a contact card or quote.') + '</div>';
+                    (msgConversations.length ? 'No matching conversations' : 'No conversations yet.<br>Send a message from a contact card or booking lead.') + '</div>';
                 return;
             }
 
