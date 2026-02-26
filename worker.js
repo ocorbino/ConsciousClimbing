@@ -16,42 +16,46 @@ const DEFAULT_PERMISSIONS = {
 
 export default {
   async fetch(request, env) {
-    const url = new URL(request.url);
+    try {
+      const url = new URL(request.url);
 
-    // Admin clean URLs without redirect chains
-    const adminRouteMap = {
-      "/admin": "/admin/index.html",
-      "/admin/": "/admin/index.html",
-      "/admin/login": "/admin/login.html",
-      "/admin/login/": "/admin/login.html",
-      "/admin/setup": "/admin/setup.html",
-      "/admin/setup/": "/admin/setup.html"
-    };
-    if (adminRouteMap[url.pathname]) {
-      const rewritten = new URL(request.url);
-      rewritten.pathname = adminRouteMap[url.pathname];
-      return env.ASSETS.fetch(new Request(rewritten.toString(), request));
+      // Admin clean URLs without redirect chains
+      const adminRouteMap = {
+        "/admin": "/admin/index.html",
+        "/admin/": "/admin/index.html",
+        "/admin/login": "/admin/login.html",
+        "/admin/login/": "/admin/login.html",
+        "/admin/setup": "/admin/setup.html",
+        "/admin/setup/": "/admin/setup.html"
+      };
+      if (adminRouteMap[url.pathname]) {
+        const rewritten = new URL(request.url);
+        rewritten.pathname = adminRouteMap[url.pathname];
+        return env.ASSETS.fetch(new Request(rewritten.toString(), request));
+      }
+
+      if (url.pathname.startsWith("/api/auth/")) {
+        return handleAuth(request, env, url);
+      }
+
+      if (
+        url.pathname === "/api/bookings" ||
+        url.pathname === "/api/quotes" ||
+        url.pathname === "/api/schedule" ||
+        url.pathname === "/api/contacts" ||
+        url.pathname === "/api/customers"
+      ) {
+        return handleCoreData(request, env, url);
+      }
+
+      if (url.pathname.startsWith("/api/")) {
+        return proxyToBackend(request, env, url);
+      }
+
+      return env.ASSETS.fetch(request);
+    } catch (error) {
+      return json({ error: "Worker exception", detail: String(error?.message || error) }, 500);
     }
-
-    if (url.pathname.startsWith("/api/auth/")) {
-      return handleAuth(request, env, url);
-    }
-
-    if (
-      url.pathname === "/api/bookings" ||
-      url.pathname === "/api/quotes" ||
-      url.pathname === "/api/schedule" ||
-      url.pathname === "/api/contacts" ||
-      url.pathname === "/api/customers"
-    ) {
-      return handleCoreData(request, env, url);
-    }
-
-    if (url.pathname.startsWith("/api/")) {
-      return proxyToBackend(request, env, url);
-    }
-
-    return env.ASSETS.fetch(request);
   }
 };
 
@@ -752,6 +756,26 @@ async function ensureSchema(db) {
   await db.prepare("CREATE INDEX IF NOT EXISTS idx_quotes_created_at ON quotes(created_at)").run();
   await db.prepare("CREATE INDEX IF NOT EXISTS idx_schedule_date_time ON schedule_jobs(scheduled_date, scheduled_time)").run();
   await db.prepare("CREATE INDEX IF NOT EXISTS idx_customers_email ON customers(email)").run();
+
+  await ensureAdminColumns(db);
+}
+
+async function ensureAdminColumns(db) {
+  const info = await db.prepare("PRAGMA table_info(admins)").all();
+  const cols = new Set((info.results || []).map((c) => String(c.name || "").toLowerCase()));
+
+  if (!cols.has("role_id")) {
+    await db.prepare("ALTER TABLE admins ADD COLUMN role_id INTEGER NOT NULL DEFAULT 1").run();
+  }
+  if (!cols.has("is_active")) {
+    await db.prepare("ALTER TABLE admins ADD COLUMN is_active INTEGER NOT NULL DEFAULT 1").run();
+  }
+  if (!cols.has("created_at")) {
+    await db.prepare("ALTER TABLE admins ADD COLUMN created_at TEXT").run();
+  }
+  if (!cols.has("last_login")) {
+    await db.prepare("ALTER TABLE admins ADD COLUMN last_login TEXT").run();
+  }
 }
 
 async function readJsonBody(request) {

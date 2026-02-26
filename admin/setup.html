@@ -105,7 +105,13 @@
                     body: JSON.stringify({ username, password })
                 });
 
-                const data = await response.json();
+                const raw = await response.text();
+                let data = {};
+                try {
+                    data = raw ? JSON.parse(raw) : {};
+                } catch (_) {
+                    data = { error: raw || `Unexpected response (${response.status})` };
+                }
 
                 if (response.ok && data.success) {
                     localStorage.setItem('admin_last_username', username);
@@ -125,7 +131,7 @@
                     setupBtn.disabled = false;
                 }
             } catch (error) {
-                showError('Connection error. Please try again.');
+                showError(`Connection error: ${error.message || 'Please try again.'}`);
                 setupBtn.querySelector('.btn-text').style.display = 'inline';
                 setupBtn.querySelector('.btn-loading').style.display = 'none';
                 setupBtn.disabled = false;
