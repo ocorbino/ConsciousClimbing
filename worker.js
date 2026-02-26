@@ -157,7 +157,7 @@ async function handleAuth(request, env, url) {
       const rows = await env.DB
         .prepare("SELECT id, username, role_id, is_active, created_at, last_login FROM admins ORDER BY id ASC")
         .all();
-      return json({ users: (rows.results || []).map(sanitizeUser) });
+      return json({ success: true, users: (rows.results || []).map(sanitizeUser) });
     }
 
     if (method === "POST") {
@@ -342,7 +342,7 @@ async function handleCoreData(request, env, url) {
       bind.push(limit);
 
       const rows = await env.DB.prepare(sql).bind(...bind).all();
-      return json({ quotes: (rows.results || []).map(normalizeQuoteRow) });
+      return json({ success: true, quotes: (rows.results || []).map(normalizeQuoteRow) });
     }
 
     if (method === "PATCH" || method === "PUT") {
@@ -483,7 +483,7 @@ async function handleCoreData(request, env, url) {
         )
         .bind(limit)
         .all();
-      return json({ customers: rows.results || [] });
+      return json({ success: true, customers: rows.results || [] });
     }
 
     if (method === "POST") {
@@ -593,8 +593,18 @@ async function handleCoreData(request, env, url) {
       );
     }
 
+    const leadCount = contacts.filter((c) => c.contact_type === "lead").length;
+    const customerCount = contacts.filter((c) => c.contact_type === "customer").length;
     filtered.sort((a, b) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime());
-    return json({ contacts: filtered.slice(0, limit) });
+    return json({
+      success: true,
+      contacts: filtered.slice(0, limit),
+      counts: {
+        total: contacts.length,
+        leads: leadCount,
+        customers: customerCount
+      }
+    });
   }
 
   return json({ error: "Route not found" }, 404);
@@ -759,23 +769,60 @@ async function ensureSchema(db) {
   await db.prepare("CREATE INDEX IF NOT EXISTS idx_customers_email ON customers(email)").run();
 
   await ensureAdminColumns(db);
+  await ensureQuotesColumns(db);
+  await ensureCustomersColumns(db);
+  await ensureScheduleColumns(db);
 }
 
 async function ensureAdminColumns(db) {
-  const info = await db.prepare("PRAGMA table_info(admins)").all();
+  await ensureTableColumns(db, "admins", {
+    role_id: "INTEGER NOT NULL DEFAULT 1",
+    is_active: "INTEGER NOT NULL DEFAULT 1",
+    created_at: "TEXT",
+    last_login: "TEXT"
+  });
+}
+
+async function ensureQuotesColumns(db) {
+  await ensureTableColumns(db, "quotes", {
+    service_type: "TEXT",
+    equipment: "TEXT",
+    group_size: "INTEGER",
+    admin_notes: "TEXT",
+    callback_date: "TEXT"
+  });
+}
+
+async function ensureCustomersColumns(db) {
+  await ensureTableColumns(db, "customers", {
+    city: "TEXT",
+    state: "TEXT",
+    zip: "TEXT",
+    notes: "TEXT"
+  });
+}
+
+async function ensureScheduleColumns(db) {
+  await ensureTableColumns(db, "schedule_jobs", {
+    time_window_end: "TEXT",
+    duration_minutes: "INTEGER",
+    travel_time: "INTEGER",
+    description: "TEXT",
+    quote_id: "INTEGER",
+    customer_id: "INTEGER",
+    status: "TEXT",
+    updated_at: "TEXT"
+  });
+}
+
+async function ensureTableColumns(db, tableName, columnsMap) {
+  const info = await db.prepare(`PRAGMA table_info(${tableName})`).all();
   const cols = new Set((info.results || []).map((c) => String(c.name || "").toLowerCase()));
 
-  if (!cols.has("role_id")) {
-    await db.prepare("ALTER TABLE admins ADD COLUMN role_id INTEGER NOT NULL DEFAULT 1").run();
-  }
-  if (!cols.has("is_active")) {
-    await db.prepare("ALTER TABLE admins ADD COLUMN is_active INTEGER NOT NULL DEFAULT 1").run();
-  }
-  if (!cols.has("created_at")) {
-    await db.prepare("ALTER TABLE admins ADD COLUMN created_at TEXT").run();
-  }
-  if (!cols.has("last_login")) {
-    await db.prepare("ALTER TABLE admins ADD COLUMN last_login TEXT").run();
+  for (const [columnName, definition] of Object.entries(columnsMap)) {
+    if (!cols.has(columnName.toLowerCase())) {
+      await db.prepare(`ALTER TABLE ${tableName} ADD COLUMN ${columnName} ${definition}`).run();
+    }
   }
 }
 
