@@ -1,10 +1,21 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "consciousclimbing",
+  "main": "worker.js",
   "compatibility_date": "2025-09-27",
   "observability": {
     "enabled": true
   },
+  "vars": {
+    "BACKEND_ORIGIN": "https://consciousclimbing.onrender.com"
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "consciousclimbing-auth",
+      "database_id": "REPLACE_WITH_YOUR_D1_DATABASE_ID"
+    }
+  ],
   "assets": {
     "directory": "."
   },
