@@ -176,38 +176,11 @@
                             <div class="fin-stat-value" id="finTotalRevenue">$0</div>
                             <div class="fin-stat-label">Total Revenue</div>
                         </div>
-                        <div class="fin-stat-card fin-parts">
-                            <div class="fin-stat-value" id="finPartsRevenue">$0</div>
-                            <div class="fin-stat-label">Parts</div>
-                        </div>
-                        <div class="fin-stat-card fin-labor">
-                            <div class="fin-stat-value" id="finLaborRevenue">$0</div>
-                            <div class="fin-stat-label">Labor</div>
-                        </div>
                         <div class="fin-stat-card fin-count">
                             <div class="fin-stat-value" id="finReceiptCount">0</div>
                             <div class="fin-stat-label">Receipts</div>
                         </div>
                     </div>
-                    <div class="fin-invoice-summary">
-                        <div class="fin-invoice-stat">
-                            <span class="fin-invoice-label">Outstanding</span>
-                            <span class="fin-invoice-value" id="finOutstanding" style="color:#f59e0b;">$0</span>
-                        </div>
-                        <div class="fin-invoice-stat">
-                            <span class="fin-invoice-label">Paid</span>
-                            <span class="fin-invoice-value" id="finPaidAmount" style="color:#10b981;">$0</span>
-                        </div>
-                        <div class="fin-invoice-stat">
-                            <span class="fin-invoice-label">Invoices</span>
-                            <span class="fin-invoice-value" id="finInvoiceCount">0</span>
-                        </div>
-                    </div>
-                    <div style="display:flex;justify-content:space-between;align-items:center;margin:20px 0 12px;">
-                        <h3 style="margin:0;font-size:1rem;color:#1f2937;">Recent Invoices</h3>
-                        <button class="btn btn-secondary" onclick="openInvoicesModal()" style="padding:4px 10px;font-size:0.75rem;">View All</button>
-                    </div>
-                    <div id="finInvoicesList" style="max-height:300px;overflow-y:auto;"></div>
                     <div style="display:flex;justify-content:space-between;align-items:center;margin:20px 0 12px;">
                         <h3 style="margin:0;font-size:1rem;color:#1f2937;">Recent Receipts</h3>
                         <button class="btn btn-secondary" onclick="openSalesHistory()" style="padding:4px 10px;font-size:0.75rem;">View All</button>
@@ -2803,13 +2776,7 @@
         .fin-stat-card .fin-stat-value { font-size:1.5rem; font-weight:700; }
         .fin-stat-card .fin-stat-label { font-size:0.8rem; opacity:0.9; margin-top:2px; }
         .fin-revenue { background:linear-gradient(135deg,#10b981,#059669); }
-        .fin-parts { background:linear-gradient(135deg,#8b5cf6,#7c3aed); }
-        .fin-labor { background:linear-gradient(135deg,#f59e0b,#d97706); }
         .fin-count { background:linear-gradient(135deg,#4a9fff,#2563eb); }
-        .fin-invoice-summary { display:flex; gap:10px; margin-bottom:16px; }
-        .fin-invoice-stat { flex:1; background:#f8fafc; border-radius:10px; padding:14px; text-align:center; }
-        .fin-invoice-label { display:block; font-size:0.75rem; color:#6b7280; margin-bottom:4px; }
-        .fin-invoice-value { display:block; font-size:1.2rem; font-weight:700; }
 
         /* === Contact Cards === */
         .contact-card {
@@ -3300,8 +3267,6 @@
         body.dark-mode .fin-period-toggle { background: #334155; }
         body.dark-mode .fin-period-btn { color: #94a3b8; }
         body.dark-mode .fin-period-btn.active { background: #1e293b; color: #e2e8f0; }
-        body.dark-mode .fin-invoice-stat { background: #334155; }
-        body.dark-mode .fin-invoice-label { color: #94a3b8; }
 
         body.dark-mode .contact-card { background: #1e293b; border-color: #334155; }
         body.dark-mode .contact-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.25); }
@@ -6378,74 +6343,26 @@
             const { start_date, end_date } = getFinDateRange(finCurrentPeriod);
 
             try {
-                const [receiptsRes, invoicesRes] = await Promise.all([
-                    fetch(`${API_BASE}/receipts?start_date=${start_date}&end_date=${end_date}&limit=200`, {
-                        headers: getAuthHeaders()
-                    }),
-                    fetch(`${API_BASE}/invoices?limit=200`, {
-                        headers: getAuthHeaders()
-                    })
-                ]);
+                const receiptsRes = await fetch(`${API_BASE}/receipts?start_date=${start_date}&end_date=${end_date}&limit=200`, {
+                    headers: getAuthHeaders()
+                });
 
                 const receiptsData = await receiptsRes.json();
-                const invoicesData = await invoicesRes.json();
 
                 // Revenue stats from receipts
                 const receipts = receiptsData.receipts || [];
-                let totalSales = 0, totalParts = 0, totalLabor = 0;
+                let totalSales = 0;
                 receipts.forEach(r => {
                     totalSales += (r.total || 0);
-                    totalParts += (r.parts_subtotal || 0);
-                    totalLabor += (r.labor_amount || 0);
                 });
 
                 document.getElementById('finTotalRevenue').textContent = '$' + totalSales.toFixed(2);
-                document.getElementById('finPartsRevenue').textContent = '$' + totalParts.toFixed(2);
-                document.getElementById('finLaborRevenue').textContent = '$' + totalLabor.toFixed(2);
                 document.getElementById('finReceiptCount').textContent = receipts.length;
 
-                // Invoice stats
-                const invoices = invoicesData.invoices || [];
-                let outstanding = 0, paidSum = 0;
-                invoices.forEach(inv => {
-                    if (['sent','viewed','overdue','partial'].includes(inv.status)) {
-                        outstanding += (inv.balance_due || inv.total || 0);
-                    }
-                    if (inv.status === 'paid') {
-                        paidSum += (inv.total || 0);
-                    }
-                });
-
-                document.getElementById('finOutstanding').textContent = '$' + outstanding.toFixed(2);
-                document.getElementById('finPaidAmount').textContent = '$' + paidSum.toFixed(2);
-                document.getElementById('finInvoiceCount').textContent = invoices.length;
-
-                renderFinInvoices(invoices.slice(0, 10));
                 renderFinReceipts(receipts.slice(0, 10));
             } catch (error) {
                 console.error('Error loading financials:', error);
             }
-        }
-
-        function renderFinInvoices(invoices) {
-            const container = document.getElementById('finInvoicesList');
-            if (!invoices.length) {
-                container.innerHTML = '<div style="text-align:center;color:#6b7280;padding:20px;">No invoices yet</div>';
-                return;
-            }
-            const statusColors = { draft:'#94a3b8', sent:'#3b82f6', viewed:'#8b5cf6', paid:'#10b981', partial:'#f59e0b', overdue:'#ef4444', void:'#6b7280' };
-            container.innerHTML = invoices.map(inv => `
-                <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #f1f5f9;">
-                    <div>
-                        <div style="font-weight:600;font-size:0.9rem;">${sanitizeHtml(inv.customer_name || 'Unknown')}</div>
-                        <div style="font-size:0.8rem;color:#6b7280;">${inv.invoice_number || ''} &middot; ${new Date(inv.created_at).toLocaleDateString('en-US',{month:'short',day:'numeric'})}</div>
-                    </div>
-                    <div style="text-align:right;">
-                        <div style="font-weight:700;font-size:0.95rem;">$${(inv.total || 0).toFixed(2)}</div>
-                        <span style="font-size:0.7rem;padding:2px 8px;border-radius:10px;background:${statusColors[inv.status] || '#94a3b8'}18;color:${statusColors[inv.status] || '#94a3b8'};font-weight:600;text-transform:capitalize;">${inv.status}</span>
-                    </div>
-                </div>
-            `).join('');
         }
 
         function renderFinReceipts(receipts) {
