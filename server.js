@@ -8,8 +8,11 @@ const querystring = require('querystring');
 const PORT = Number(process.env.PORT) || 3000;
 const HOST = process.env.HOST || '127.0.0.1';
 const ROOT_DIR = __dirname;
-const DATA_DIR = path.join(ROOT_DIR, 'data');
-const STORE_PATH = path.join(DATA_DIR, 'store.json');
+const CONFIGURED_STORE_PATH = process.env.STORE_PATH ? path.resolve(process.env.STORE_PATH) : null;
+const DATA_DIR = CONFIGURED_STORE_PATH ? path.dirname(CONFIGURED_STORE_PATH) : path.join(ROOT_DIR, 'data');
+const STORE_PATH = CONFIGURED_STORE_PATH || path.join(DATA_DIR, 'store.json');
+const STORE_BACKUP_PATH = `${STORE_PATH}.bak`;
+const STORE_TMP_PATH = `${STORE_PATH}.tmp`;
 const SESSION_TTL_MS = 1000 * 60 * 60 * 24 * 14;
 
 const defaultStore = {
@@ -58,32 +61,51 @@ const defaultRole = {
 function ensureStoreFile() {
   if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
   if (!fs.existsSync(STORE_PATH)) fs.writeFileSync(STORE_PATH, JSON.stringify(defaultStore, null, 2));
+  if (!fs.existsSync(STORE_BACKUP_PATH)) fs.copyFileSync(STORE_PATH, STORE_BACKUP_PATH);
 }
 
 function readStore() {
   ensureStoreFile();
   try {
     const parsed = JSON.parse(fs.readFileSync(STORE_PATH, 'utf8'));
-    const store = {
-      ...defaultStore,
-      ...parsed,
-      counters: { ...defaultStore.counters, ...(parsed.counters || {}) },
-      businessSettings: { ...defaultStore.businessSettings, ...(parsed.businessSettings || {}) }
-    };
-
-    if (!store.businessSettings.ical_feed_token) {
-      store.businessSettings.ical_feed_token = randomToken().slice(0, 24);
+    return hydrateStore(parsed);
+  } catch (primaryErr) {
+    // Recover from backup if the primary store becomes corrupted.
+    try {
+      const backupParsed = JSON.parse(fs.readFileSync(STORE_BACKUP_PATH, 'utf8'));
+      fs.writeFileSync(STORE_PATH, JSON.stringify(backupParsed, null, 2));
+      return hydrateStore(backupParsed);
+    } catch {
+      // Last resort: reset to default and immediately persist to disk.
+      const fallback = JSON.parse(JSON.stringify(defaultStore));
+      writeStore(fallback);
+      return fallback;
     }
-
-    return store;
-  } catch {
-    return JSON.parse(JSON.stringify(defaultStore));
   }
 }
 
 function writeStore(store) {
   ensureStoreFile();
-  fs.writeFileSync(STORE_PATH, JSON.stringify(store, null, 2));
+  const payload = JSON.stringify(store, null, 2);
+  // Atomic write to reduce corruption risk from crashes/restarts.
+  fs.writeFileSync(STORE_TMP_PATH, payload);
+  fs.renameSync(STORE_TMP_PATH, STORE_PATH);
+  fs.copyFileSync(STORE_PATH, STORE_BACKUP_PATH);
+}
+
+function hydrateStore(parsed) {
+  const store = {
+    ...defaultStore,
+    ...parsed,
+    counters: { ...defaultStore.counters, ...(parsed.counters || {}) },
+    businessSettings: { ...defaultStore.businessSettings, ...(parsed.businessSettings || {}) }
+  };
+
+  if (!store.businessSettings.ical_feed_token) {
+    store.businessSettings.ical_feed_token = randomToken().slice(0, 24);
+  }
+
+  return store;
 }
 
 function nowIso() {
