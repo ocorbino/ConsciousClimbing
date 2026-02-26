@@ -1,4 +1,5 @@
 const SESSION_TTL_MS = 1000 * 60 * 60 * 24 * 14;
+const PASSWORD_PBKDF2_ITERATIONS = 60000;
 
 const DEFAULT_PERMISSIONS = {
   can_view_calendar: true,
@@ -835,26 +836,29 @@ async function pbkdf2(password, saltBytes, iterations = 210000, length = 32) {
 async function hashPassword(password) {
   const salt = new Uint8Array(16);
   crypto.getRandomValues(salt);
-  const iterations = 210000;
-  const hash = await pbkdf2(password, salt, iterations, 32);
-  return `pbkdf2$${iterations}$${bytesToBase64(salt)}$${bytesToBase64(hash)}`;
+  const hash = await pbkdf2(password, salt, PASSWORD_PBKDF2_ITERATIONS, 32);
+  return `pbkdf2$${PASSWORD_PBKDF2_ITERATIONS}$${bytesToBase64(salt)}$${bytesToBase64(hash)}`;
 }
 
 async function verifyPassword(password, stored) {
-  const [scheme, iterRaw, saltB64, hashB64] = String(stored || "").split("$");
-  if (scheme !== "pbkdf2" || !iterRaw || !saltB64 || !hashB64) return false;
+  try {
+    const [scheme, iterRaw, saltB64, hashB64] = String(stored || "").split("$");
+    if (scheme !== "pbkdf2" || !iterRaw || !saltB64 || !hashB64) return false;
 
-  const iterations = Number(iterRaw);
-  if (!Number.isFinite(iterations) || iterations <= 0) return false;
+    const iterations = Number(iterRaw);
+    if (!Number.isFinite(iterations) || iterations <= 0) return false;
 
-  const salt = base64ToBytes(saltB64);
-  const expected = base64ToBytes(hashB64);
-  const actual = await pbkdf2(password, salt, iterations, expected.length);
+    const salt = base64ToBytes(saltB64);
+    const expected = base64ToBytes(hashB64);
+    const actual = await pbkdf2(password, salt, iterations, expected.length);
 
-  if (actual.length !== expected.length) return false;
-  let diff = 0;
-  for (let i = 0; i < actual.length; i++) diff |= actual[i] ^ expected[i];
-  return diff === 0;
+    if (actual.length !== expected.length) return false;
+    let diff = 0;
+    for (let i = 0; i < actual.length; i++) diff |= actual[i] ^ expected[i];
+    return diff === 0;
+  } catch {
+    return false;
+  }
 }
 
 function json(data, status = 200) {
