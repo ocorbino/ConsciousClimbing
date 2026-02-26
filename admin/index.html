@@ -4262,7 +4262,6 @@
         // Admin user management
         let currentUser = JSON.parse(localStorage.getItem('admin_user') || '{}');
         let allRoles = [];
-        const HIDDEN_USERS = ['jordan', 'corbin'];
 
         async function loadRolesCache() {
             try {
@@ -4284,7 +4283,7 @@
                 });
                 const data = await response.json();
                 const usersList = document.getElementById('adminUsersList');
-                const visibleUsers = (data.users || []).filter(u => !HIDDEN_USERS.includes(u.username));
+                const visibleUsers = data.users || [];
 
                 // Populate role dropdown for new user form
                 const roleSelect = document.getElementById('newAdminRole');
