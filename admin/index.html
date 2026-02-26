@@ -532,7 +532,7 @@
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px;">
                     <div style="display: flex; align-items: center; gap: 8px;">
                         <input type="color" id="settingColorJob" value="#7c3aed" style="width: 36px; height: 36px; border: 2px solid #e2e8f0; border-radius: 6px; cursor: pointer; padding: 2px;">
-                        <span style="font-weight: 600; font-size: 0.9rem;">Job</span>
+                        <span style="font-weight: 600; font-size: 0.9rem;">Private Session (Legacy)</span>
                     </div>
                     <div style="display: flex; align-items: center; gap: 8px;">
                         <input type="color" id="settingColorDiagnostic" value="#2563eb" style="width: 36px; height: 36px; border: 2px solid #e2e8f0; border-radius: 6px; cursor: pointer; padding: 2px;">
@@ -544,7 +544,7 @@
                     </div>
                     <div style="display: flex; align-items: center; gap: 8px;">
                         <input type="color" id="settingColorPersonal" value="#ec4899" style="width: 36px; height: 36px; border: 2px solid #e2e8f0; border-radius: 6px; cursor: pointer; padding: 2px;">
-                        <span style="font-weight: 600; font-size: 0.9rem;">Personal</span>
+                        <span style="font-weight: 600; font-size: 0.9rem;">Group Session (Legacy)</span>
                     </div>
                 </div>
                 <button type="submit" class="btn btn-primary" style="width: 100%;">Save Settings</button>
@@ -906,13 +906,11 @@
                 <!-- Entry type selector -->
                 <div class="form-group" style="margin-bottom:12px;">
                     <div style="display:flex;gap:4px;flex-wrap:wrap;" id="schedTypeButtons">
-                        <button type="button" class="sched-type-btn active" data-type="job" onclick="setSchedType('job')">Job</button>
-                        <button type="button" class="sched-type-btn" data-type="diagnostic" onclick="setSchedType('diagnostic')">Private Session</button>
+                        <button type="button" class="sched-type-btn active" data-type="diagnostic" onclick="setSchedType('diagnostic')">Private Session</button>
                         <button type="button" class="sched-type-btn" data-type="roadside" onclick="setSchedType('roadside')">Group Session</button>
-                        <button type="button" class="sched-type-btn" data-type="personal" onclick="setSchedType('personal')">Personal</button>
                     </div>
                 </div>
-                <input type="hidden" id="schedEntryType" value="job">
+                <input type="hidden" id="schedEntryType" value="diagnostic">
                 <div id="schedContactFields">
                     <div class="form-group">
                         <label for="schedContactSelect">Contact</label>
@@ -933,10 +931,7 @@
                         <input type="tel" id="schedContactPhone" placeholder="(765) 555-0000" style="width:100%;padding:10px 14px;border:2px solid #e2e8f0;border-radius:8px;">
                     </div>
                 </div>
-                <div class="form-group">
-                    <label for="schedTitle" id="schedTitleLabel">Title *</label>
-                    <input type="text" id="schedTitle" required placeholder="e.g. Guided Climb - Elephant's Perch" style="width:100%;padding:10px 14px;border:2px solid #e2e8f0;border-radius:8px;">
-                </div>
+                <input type="hidden" id="schedTitle">
                 <div class="form-group">
                     <label for="schedDate">Date *</label>
                     <input type="date" id="schedDate" required style="width:100%;padding:10px 14px;border:2px solid #e2e8f0;border-radius:8px;">
@@ -978,10 +973,7 @@
                         <input type="time" id="schedWindowEnd" value="12:00" style="width:100%;padding:10px 14px;border:2px solid #e2e8f0;border-radius:8px;">
                     </div>
                 </div>
-                <div class="form-group">
-                    <label for="schedAddress">Address</label>
-                    <input type="text" id="schedAddress" placeholder="Location" style="width:100%;padding:10px 14px;border:2px solid #e2e8f0;border-radius:8px;">
-                </div>
+                <input type="hidden" id="schedAddress">
                 <div class="form-group">
                     <label for="schedTravelTime">Travel Time</label>
                     <select id="schedTravelTime" style="width:100%;padding:10px 14px;border:2px solid #e2e8f0;border-radius:8px;">
@@ -6751,7 +6743,7 @@
             const quickActionsHtml = isLead ? `
                 <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;padding:10px 12px;background:#f8fafc;border-radius:8px;">
                     <button class="btn btn-secondary" style="padding:5px 10px;font-size:0.8rem;" onclick="promptCallback(${quoteId}, '${sanitizeHtml(contact.name)}')">Schedule Callback</button>
-                    <button class="btn btn-secondary" style="padding:5px 10px;font-size:0.8rem;" onclick="closeContactDetail(); openScheduleModal(window._openContact);">Schedule Job</button>
+                    <button class="btn btn-secondary" style="padding:5px 10px;font-size:0.8rem;" onclick="closeContactDetail(); openScheduleModal(window._openContact);">Schedule Session</button>
                     <button class="btn btn-secondary" style="padding:5px 10px;font-size:0.8rem;color:#059669;" onclick="updateContactStatus(${quoteId}, 'contacted')">Mark Contacted</button>
                     <button class="btn btn-secondary" style="padding:5px 10px;font-size:0.8rem;color:#ef4444;" onclick="confirmNotInterested(${quoteId})">Not Interested</button>
                     <button class="btn btn-secondary" style="padding:5px 10px;font-size:0.8rem;color:#10b981;" onclick="createInvoiceFromContact(${quoteId})">Create Invoice</button>
@@ -7286,8 +7278,7 @@
         }
 
         function buildDayEventHtml(j) {
-            const entryType = j.entry_type || 'job';
-            const isPersonal = entryType === 'personal';
+            const entryType = j.entry_type === 'roadside' ? 'roadside' : 'diagnostic';
             let timeLabel = '';
             if (j.time_window_end && j.scheduled_time) {
                 timeLabel = `${formatTime12(j.scheduled_time)} - ${formatTime12(j.time_window_end)}`;
@@ -7301,9 +7292,8 @@
 
             let html = `<div class="day-event status-${j.status} type-${entryType}" onclick="event.stopPropagation(); showJobPopover(event, '${j.job_id}')">`;
             if (timeLabel) html += `<div class="day-event-time">${timeLabel}</div>`;
-            html += `<div class="day-event-title">${isPersonal ? sanitizeHtml(j.title) : sanitizeHtml(j.contact_name || j.title)}</div>`;
+            html += `<div class="day-event-title">${sanitizeHtml(j.contact_name || j.title)}</div>`;
             if (j.travel_time) html += `<div class="day-event-travel">&#128663; ${j.travel_time} min drive</div>`;
-            if (!isPersonal && j.address) html += `<div class="day-event-detail">${sanitizeHtml(j.address)}</div>`;
             if (j.description) html += `<div class="day-event-detail">${sanitizeHtml(j.description)}</div>`;
             html += '</div>';
             return html;
@@ -7364,13 +7354,11 @@
                     } else if (j.scheduled_time) {
                         timeLabel = formatTime12(j.scheduled_time);
                     }
-                    const entryType = j.entry_type || 'job';
-                    const isPersonal = entryType === 'personal';
+                    const entryType = j.entry_type === 'roadside' ? 'roadside' : 'diagnostic';
                     html += `<div class="cal-job status-${j.status} type-${entryType}" onclick="event.stopPropagation(); showJobPopover(event, '${j.job_id}')">`;
                     if (timeLabel) html += `<span class="cal-job-time">${timeLabel}</span> `;
-                    html += `<span class="cal-job-name">${isPersonal ? sanitizeHtml(j.title) : sanitizeHtml(j.contact_name || j.title)}</span>`;
+                    html += `<span class="cal-job-name">${sanitizeHtml(j.contact_name || j.title)}</span>`;
                     if (j.travel_time) html += `<div class="cal-job-loc" style="color:#f59e0b;">&#128663; ${j.travel_time} min drive</div>`;
-                    if (!isPersonal && j.address) html += `<div class="cal-job-loc">${sanitizeHtml(j.address)}</div>`;
                     html += `</div>`;
                 });
 
@@ -7403,9 +7391,9 @@
                 timeLabel = 'No time set';
             }
             const dateLabel = new Date(job.scheduled_date + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
-            const entryType = job.entry_type || 'job';
-            const typeLabelsPopover = { job: 'Guided Day', diagnostic: 'Private Session', roadside: 'Group Session', personal: 'Personal', event: 'Event' };
-            const typeColors = { job: 'var(--color-job, #7c3aed)', diagnostic: 'var(--color-diagnostic, #2563eb)', roadside: 'var(--color-roadside, #f59e0b)', personal: 'var(--color-personal, #ec4899)' };
+            const entryType = job.entry_type === 'roadside' ? 'roadside' : 'diagnostic';
+            const typeLabelsPopover = { diagnostic: 'Private Session', roadside: 'Group Session', event: 'Event' };
+            const typeColors = { diagnostic: 'var(--color-diagnostic, #2563eb)', roadside: 'var(--color-roadside, #f59e0b)' };
 
             let actionsHtml = '';
             if (job.contact_phone) {
@@ -7434,10 +7422,9 @@
                     <div class="job-popover-title">${sanitizeHtml(job.title)}</div>
                     <span style="cursor:pointer;font-size:1.2rem;color:#94a3b8;line-height:1;" onclick="closeJobPopover()">&times;</span>
                 </div>
-                <div class="job-popover-row"><span class="job-popover-label">Type</span><span style="color:${typeColors[entryType] || '#64748b'};font-weight:600;">${typeLabelsPopover[entryType] || 'Job'}</span></div>
+                <div class="job-popover-row"><span class="job-popover-label">Type</span><span style="color:${typeColors[entryType] || '#64748b'};font-weight:600;">${typeLabelsPopover[entryType] || 'Private Session'}</span></div>
                 <div class="job-popover-row"><span class="job-popover-label">When</span><span>${dateLabel}, ${timeLabel}</span></div>
                 ${job.contact_name ? `<div class="job-popover-row"><span class="job-popover-label">Contact</span><span>${sanitizeHtml(job.contact_name)}${job.contact_phone ? ' &middot; ' + sanitizeHtml(formatPhone(job.contact_phone)) : ''}</span></div>` : ''}
-                ${job.address ? `<div class="job-popover-row"><span class="job-popover-label">Location</span><span>${sanitizeHtml(job.address)}</span></div>` : ''}
                 ${job.travel_time ? `<div class="job-popover-row"><span class="job-popover-label">Travel</span><span>${job.travel_time >= 60 ? Math.floor(job.travel_time/60) + ' hr' + (job.travel_time % 60 ? ' ' + (job.travel_time % 60) + ' min' : '') : job.travel_time + ' min'}</span></div>` : ''}
                 ${job.description ? `<div class="job-popover-row"><span class="job-popover-label">Notes</span><span>${sanitizeHtml(job.description)}</span></div>` : ''}
                 <div class="job-popover-row"><span class="job-popover-label">Status</span><span style="text-transform:capitalize;font-weight:600;">${job.status}</span></div>
@@ -7487,26 +7474,14 @@
         }
 
         function setSchedType(type) {
+            if (!['diagnostic', 'roadside'].includes(type)) type = 'diagnostic';
             document.getElementById('schedEntryType').value = type;
-            const contactFields = document.getElementById('schedContactFields');
-            const titleInput = document.getElementById('schedTitle');
             const saveBtn = document.getElementById('schedSaveBtn');
 
             // Toggle active class on type buttons
             document.querySelectorAll('.sched-type-btn').forEach(btn => {
                 btn.classList.toggle('active', btn.dataset.type === type);
             });
-
-            const placeholders = {
-                job: "e.g. Guided Climb - Elephant's Perch",
-                diagnostic: 'e.g. Private Session - anchor practice',
-                roadside: 'e.g. Group Session - beginner day',
-                personal: 'e.g. Client check-in, gear prep, route scouting'
-            };
-            titleInput.placeholder = placeholders[type] || placeholders.job;
-
-            // Hide contact fields for personal entries
-            contactFields.style.display = type === 'personal' ? 'none' : 'block';
 
             saveBtn.textContent = 'Save Appointment';
         }
@@ -7528,7 +7503,7 @@
             document.getElementById('schedTime').value = '09:00';
             document.getElementById('schedWindowStart').value = '08:00';
             document.getElementById('schedWindowEnd').value = '12:00';
-            setSchedType('job');
+            setSchedType('diagnostic');
             document.getElementById('schedTravelTime').value = '';
             document.querySelector('input[name="schedTimeMode"][value="exact"]').checked = true;
             toggleTimeMode();
@@ -7536,12 +7511,8 @@
             if (contact) {
                 document.getElementById('schedContactName').value = contact.name || '';
                 document.getElementById('schedContactPhone').value = contact.phone || '';
-                document.getElementById('schedAddress').value = contact.address || '';
                 if (contact.quote_id) document.getElementById('schedQuoteId').value = contact.quote_id;
                 if (contact.customer_id) document.getElementById('schedCustomerId').value = contact.customer_id;
-                if (contact.vehicle) {
-                    document.getElementById('schedTitle').value = contact.vehicle;
-                }
                 // Pre-select in dropdown if contact_id is available
                 if (contact.contact_id) {
                     setTimeout(() => {
@@ -7559,16 +7530,38 @@
 
         // Populate contact dropdown for schedule modal
         let schedContactCache = [];
-        async function loadSchedContacts() {
-            try {
-                const resp = await fetch(`${API_BASE}/contacts?limit=500`, { headers: getAuthHeaders() });
-                const data = await resp.json();
-                // Newest first (by created_at descending)
-                schedContactCache = (data.contacts || []).sort((a, b) =>
-                    new Date(b.created_at || 0) - new Date(a.created_at || 0)
-                );
+        let schedContactsLoadedAt = 0;
+        let schedContactsLoadingPromise = null;
+        const SCHED_CONTACTS_TTL_MS = 3 * 60 * 1000;
+
+        async function loadSchedContacts(force = false) {
+            const now = Date.now();
+            if (!force && schedContactCache.length && (now - schedContactsLoadedAt) < SCHED_CONTACTS_TTL_MS) {
                 populateSchedContactDropdown();
-            } catch (e) { console.error('Load sched contacts:', e); }
+                return schedContactCache;
+            }
+            if (schedContactsLoadingPromise) return schedContactsLoadingPromise;
+
+            schedContactsLoadingPromise = (async () => {
+                try {
+                    const resp = await fetch(`${API_BASE}/contacts?limit=500`, { headers: getAuthHeaders() });
+                    const data = await resp.json();
+                    // Newest first (by created_at descending)
+                    schedContactCache = (data.contacts || []).sort((a, b) =>
+                        new Date(b.created_at || 0) - new Date(a.created_at || 0)
+                    );
+                    schedContactsLoadedAt = Date.now();
+                    populateSchedContactDropdown();
+                    return schedContactCache;
+                } catch (e) {
+                    console.error('Load sched contacts:', e);
+                    return schedContactCache;
+                } finally {
+                    schedContactsLoadingPromise = null;
+                }
+            })();
+
+            return schedContactsLoadingPromise;
         }
 
         function populateSchedContactDropdown() {
@@ -7593,13 +7586,8 @@
             if (c) {
                 document.getElementById('schedContactName').value = c.name || '';
                 document.getElementById('schedContactPhone').value = c.phone || '';
-                document.getElementById('schedAddress').value = c.address || '';
                 if (c.quote_id) document.getElementById('schedQuoteId').value = c.quote_id;
                 if (c.customer_id) document.getElementById('schedCustomerId').value = c.customer_id;
-                if (c.vehicle) {
-                    const titleEl = document.getElementById('schedTitle');
-                    if (!titleEl.value) titleEl.value = c.vehicle;
-                }
             }
         }
 
@@ -7745,20 +7733,18 @@
                 const match = schedContactCache.find(c => c.name === job.contact_name);
                 if (match) document.getElementById('schedContactSelect').value = match.contact_id;
             });
-            const typeLabels = { job: 'Guided Day', diagnostic: 'Private Session', roadside: 'Group Session', personal: 'Personal', event: 'Event' };
+            const typeLabels = { diagnostic: 'Private Session', roadside: 'Group Session', event: 'Event' };
             document.getElementById('scheduleModalTitle').textContent = 'Edit ' + (typeLabels[job.entry_type] || 'Appointment');
             document.getElementById('schedJobId').value = job.job_id;
             document.getElementById('schedQuoteId').value = job.quote_id || '';
             document.getElementById('schedCustomerId').value = job.customer_id || '';
             document.getElementById('schedContactName').value = job.contact_name || '';
             document.getElementById('schedContactPhone').value = job.contact_phone || '';
-            document.getElementById('schedTitle').value = job.title || '';
             document.getElementById('schedDate').value = job.scheduled_date || '';
-            document.getElementById('schedAddress').value = job.address || '';
             document.getElementById('schedTravelTime').value = job.travel_time || '';
             document.getElementById('schedDescription').value = job.description || '';
 
-            setSchedType(['job','diagnostic','roadside','personal'].includes(job.entry_type) ? job.entry_type : 'job');
+            setSchedType(['diagnostic','roadside'].includes(job.entry_type) ? job.entry_type : 'diagnostic');
 
             // Set time mode
             if (job.time_window_end) {
@@ -7780,14 +7766,17 @@
             const jobId = document.getElementById('schedJobId').value;
             const timeMode = document.querySelector('input[name="schedTimeMode"]:checked').value;
             const entryType = document.getElementById('schedEntryType').value;
+            const contactName = document.getElementById('schedContactName').value.trim();
+            const fallbackTypeLabel = entryType === 'roadside' ? 'Group Session' : 'Private Session';
+            const autoTitle = [fallbackTypeLabel, contactName].filter(Boolean).join(' - ');
 
             const payload = {
                 entry_type: entryType,
-                contact_name: document.getElementById('schedContactName').value.trim(),
+                contact_name: contactName,
                 contact_phone: document.getElementById('schedContactPhone').value.trim(),
-                title: document.getElementById('schedTitle').value.trim(),
+                title: autoTitle || fallbackTypeLabel,
                 scheduled_date: document.getElementById('schedDate').value,
-                address: document.getElementById('schedAddress').value.trim(),
+                address: null,
                 travel_time: document.getElementById('schedTravelTime').value ? parseInt(document.getElementById('schedTravelTime').value) : null,
                 description: document.getElementById('schedDescription').value.trim(),
                 quote_id: document.getElementById('schedQuoteId').value ? parseInt(document.getElementById('schedQuoteId').value) : null,
