@@ -1,8 +1,3 @@
 /Admin /admin 301
 /Admin/ /admin/ 301
 /Admin/* /admin/:splat 301
-/admin /admin/ 301
-/admin/login /admin/login.html 301
-/admin/login/ /admin/login.html 301
-/admin/setup /admin/setup.html 301
-/admin/setup/ /admin/setup.html 301

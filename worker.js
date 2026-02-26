@@ -18,6 +18,21 @@ export default {
   async fetch(request, env) {
     const url = new URL(request.url);
 
+    // Admin clean URLs without redirect chains
+    const adminRouteMap = {
+      "/admin": "/admin/login.html",
+      "/admin/": "/admin/login.html",
+      "/admin/login": "/admin/login.html",
+      "/admin/login/": "/admin/login.html",
+      "/admin/setup": "/admin/setup.html",
+      "/admin/setup/": "/admin/setup.html"
+    };
+    if (adminRouteMap[url.pathname]) {
+      const rewritten = new URL(request.url);
+      rewritten.pathname = adminRouteMap[url.pathname];
+      return env.ASSETS.fetch(new Request(rewritten.toString(), request));
+    }
+
     if (url.pathname.startsWith("/api/auth/")) {
       return handleAuth(request, env, url);
     }
